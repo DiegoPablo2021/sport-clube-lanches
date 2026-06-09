@@ -1,0 +1,185 @@
+<main class="menu-shell">
+  <header class="topbar">
+    <div>
+      <p class="address">{{ business.address }}</p>
+      <h1>{{ business.name }}</h1>
+      <p class="business-notice">{{ business.openingHoursNotice }}</p>
+    </div>
+    <a
+      class="whatsapp-link"
+      [href]="'https://wa.me/' + business.whatsappNumber"
+      target="_blank"
+      rel="noreferrer"
+      aria-label="Abrir WhatsApp do Sport Clube Lanches"
+    >
+      {{ business.whatsappDisplay }}
+    </a>
+  </header>
+
+  <section class="promo-section" aria-labelledby="promo-title">
+    <div class="section-heading">
+      <h2 id="promo-title">Promocoes</h2>
+      <span>Combos em destaque</span>
+    </div>
+
+    <div class="promo-grid">
+      @for (product of highlightedProducts(); track product.id) {
+        <article class="promo-card">
+          <img [src]="product.imageUrl" [alt]="product.name" />
+          <div>
+            <p>{{ product.tags?.[0] || 'Oferta da casa' }}</p>
+            <h3>{{ product.name }}</h3>
+            <strong>{{ product.price | brlCurrency }}</strong>
+            <button type="button" (click)="cart.add(product)">Adicionar</button>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <nav class="category-tabs" aria-label="Categorias do cardapio">
+    @for (category of categories; track category.id) {
+      <button
+        type="button"
+        [class.active]="category.id === selectedCategoryId()"
+        (click)="selectCategory(category.id)"
+      >
+        {{ category.name }}
+      </button>
+    }
+  </nav>
+
+  <section class="product-section" aria-labelledby="products-title">
+    <div class="section-heading">
+      <div>
+        <h2 id="products-title">{{ selectedCategory()?.name }}</h2>
+        <span>{{ selectedCategory()?.description }}</span>
+      </div>
+      <span class="count">{{ visibleProducts().length }} itens</span>
+    </div>
+
+    <div class="product-list">
+      @for (product of visibleProducts(); track product.id) {
+        <article class="product-row">
+          <img [src]="product.imageUrl" [alt]="product.name" loading="lazy" />
+          <div class="product-info">
+            <h3>{{ product.name }}</h3>
+            <p>{{ product.description }}</p>
+            <strong>{{ product.price | brlCurrency }}</strong>
+          </div>
+          <button
+            type="button"
+            class="add-button"
+            (click)="cart.add(product)"
+            [attr.aria-label]="'Adicionar ' + product.name"
+          >
+            +
+          </button>
+        </article>
+      }
+    </div>
+  </section>
+</main>
+
+<aside class="cart-panel" aria-label="Resumo do pedido">
+  <div class="cart-summary">
+    <div>
+      <span>{{ cart.totalItems() }} itens</span>
+      <strong>{{ cart.totalAmount() | brlCurrency }}</strong>
+    </div>
+    <a
+      class="send-order"
+      [class.disabled]="cart.totalItems() === 0"
+      [href]="cart.totalItems() > 0 ? createWhatsappUrl() : null"
+      target="_blank"
+      rel="noreferrer"
+      aria-label="Enviar pedido no WhatsApp"
+    >
+      Enviar pedido no WhatsApp
+    </a>
+  </div>
+
+  @if (cart.items().length > 0) {
+    <div class="cart-items">
+      @for (item of cart.items(); track item.product.id) {
+        <div class="cart-item">
+          <span>{{ item.quantity }}x {{ item.product.name }}</span>
+          <div>
+            <button type="button" (click)="cart.decrease(item.product.id)">-</button>
+            <button type="button" (click)="cart.add(item.product)">+</button>
+          </div>
+        </div>
+      }
+    </div>
+
+    <form class="checkout-form">
+      <label>
+        Nome
+        <input name="name" [(ngModel)]="checkout.name" autocomplete="name" />
+      </label>
+      <label>
+        Telefone
+        <input
+          name="phone"
+          [(ngModel)]="checkout.phone"
+          autocomplete="tel"
+          inputmode="tel"
+          placeholder="(84) 99999-9999"
+        />
+      </label>
+      <label>
+        Entrega ou retirada?
+        <select
+          name="orderType"
+          [(ngModel)]="checkout.orderType"
+          (ngModelChange)="onOrderTypeChange()"
+        >
+          <option value="Entrega">Entrega</option>
+          <option value="Retirada">Retirada no local</option>
+        </select>
+      </label>
+      @if (checkout.orderType === 'Entrega') {
+        <label>
+          Endereco
+          <input
+            name="address"
+            [(ngModel)]="checkout.address"
+            autocomplete="street-address"
+          />
+        </label>
+        <label>
+          Bairro
+          <input name="neighborhood" [(ngModel)]="checkout.neighborhood" />
+        </label>
+        <p class="delivery-fee-notice">{{ getDeliveryFeeNotice() }}</p>
+      }
+      <label>
+        Forma de pagamento
+        <select
+          name="paymentMethod"
+          [(ngModel)]="checkout.paymentMethod"
+          (ngModelChange)="onPaymentMethodChange()"
+        >
+          <option value="">A combinar</option>
+          <option value="Pix">Pix</option>
+          <option value="Cartao na entrega">Cartao na entrega</option>
+          <option value="Dinheiro">Dinheiro</option>
+        </select>
+      </label>
+      @if (checkout.paymentMethod === 'Dinheiro') {
+        <label>
+          Precisa de troco?
+          <input
+            name="changeFor"
+            [(ngModel)]="checkout.changeFor"
+            placeholder="Ex.: troco para R$ 50,00"
+          />
+        </label>
+      }
+      <label>
+        Observacao
+        <textarea name="notes" [(ngModel)]="checkout.notes" rows="2"></textarea>
+      </label>
+    </form>
+  }
+</aside>
