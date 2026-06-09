@@ -54,6 +54,8 @@ Ela permite criar pedidos a partir do cardapio sem expor inserts diretos nas tab
 
 - `vw_orders_base`
 - `vw_daily_sales`
+- `vw_weekday_sales`
+- `vw_period_sales`
 - `vw_product_sales`
 - `vw_category_sales`
 - `vw_payment_methods`
@@ -61,7 +63,10 @@ Ela permite criar pedidos a partir do cardapio sem expor inserts diretos nas tab
 - `vw_order_type_sales`
 - `vw_hourly_sales`
 - `vw_customer_recurrence`
+- `vw_customer_promotion_candidates`
+- `vw_customer_favorite_products`
 - `vw_order_status_summary`
+- `vw_kpi_snapshot`
 
 ## Power BI sem Excel
 
@@ -72,6 +77,16 @@ Recomendacao:
 - Conectar usando host/porta/usuario/senha do Supabase.
 - Preferir as views `vw_*`.
 - Evitar conectar direto nas tabelas operacionais para nao misturar regra de negocio no BI.
+
+Indicadores contemplados:
+
+- Dia que mais vende.
+- Produto que mais sai.
+- Cliente que mais compra.
+- Bairro que mais compra.
+- Horario de pico.
+- Ganho por dia, semana, mes, trimestre, semestre e ano.
+- Clientes candidatos a promocao.
 
 ## Streamlit
 

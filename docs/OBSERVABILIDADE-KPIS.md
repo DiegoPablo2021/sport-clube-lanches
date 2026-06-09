@@ -63,6 +63,9 @@ Conexao recomendada:
 - Horarios de pico.
 - Pedidos cancelados.
 - Clientes recorrentes.
+- Clientes candidatos a promocao/fidelidade.
+- Produtos favoritos por cliente.
+- Ganho por semana, mes, trimestre, semestre e ano.
 
 ## Primeira versao do dashboard
 
@@ -73,9 +76,24 @@ Para o primeiro Streamlit:
 - Faturamento estimado.
 - Ticket medio.
 - Top 10 produtos.
+- Clientes que mais compram.
+- Candidatos a promocao.
+- Produtos favoritos por cliente.
 - Pedidos por bairro.
 - Entrega vs retirada.
 - Formas de pagamento.
+- Horario de pico.
+- Dia da semana que mais vende.
+- Ganho por dia, semana, mes, trimestre, semestre e ano.
+
+## Promocoes por historico
+
+Exemplos de uso dos dados:
+
+- Cliente com 5 ou mais pedidos nos ultimos 30 dias pode receber brinde ou cupom.
+- Cliente com alto valor comprado no periodo pode entrar em campanha de fidelidade.
+- Produto favorito do cliente pode orientar uma promocao personalizada.
+- Bairros com maior volume podem receber campanha direcionada.
 
 ## Cuidados
 
