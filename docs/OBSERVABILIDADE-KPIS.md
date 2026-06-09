@@ -22,6 +22,8 @@ Frontend
   -> Streamlit ou Power BI
 ```
 
+O Supabase deve ser tratado como a base operacional e analitica inicial. A recomendacao e expor dados ao dashboard por views, nao por exportacoes manuais em Excel.
+
 ## Streamlit
 
 Uso recomendado:
@@ -39,6 +41,13 @@ Uso recomendado:
 - Relatorios recorrentes.
 - Visao executiva de vendas, produtos e clientes.
 - Compartilhamento profissional quando a operacao amadurecer.
+
+Conexao recomendada:
+
+- Conectar o Power BI ao PostgreSQL do Supabase.
+- Usar views como `vw_daily_sales`, `vw_product_sales` e `vw_neighborhood_sales`.
+- Evitar usar Excel como ponte quando os dados ja estiverem no banco.
+- Se a conexao direta exigir configuracoes de rede/SSL, manter Streamlit como painel intermediario ate o ambiente ficar pronto.
 
 ## KPIs recomendados
 

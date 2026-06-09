@@ -148,6 +148,8 @@ Supabase PostgreSQL
   -> Power BI para painel oficial
 ```
 
+O Power BI deve consumir os dados do Supabase, preferencialmente por views analiticas. Assim evitamos dependencia de planilhas Excel e reduzimos trabalho manual.
+
 ## Views analiticas sugeridas
 
 - `vw_daily_sales`

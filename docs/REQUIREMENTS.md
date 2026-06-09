@@ -81,6 +81,13 @@ Configuracao esperada:
 
 O arquivo `vercel.json` fixa essas configuracoes para evitar divergencia entre ambiente local e deploy.
 
+Status atual:
+
+- Repositorio GitHub: `https://github.com/DiegoPablo2021/sport-clube-lanches`
+- Projeto Vercel: `delivery-web-menu`
+- URL de producao: `https://delivery-web-menu.vercel.app`
+- Git conectado na Vercel: pushes na branch `main` disparam deploy automatico.
+
 ## 6. Observabilidade, metricas e KPIs
 
 Na Fase 1, ainda nao ha banco de pedidos. Portanto, metricas reais dependem de registrar pedidos em uma base estruturada na Fase 2.
@@ -94,6 +101,8 @@ Cardapio/checkout
   -> Views/tabelas analiticas
   -> Power BI ou Streamlit
 ```
+
+O Supabase sera a fonte principal de dados. Assim, o dashboard nao depende de planilhas Excel: Power BI e Streamlit devem consumir tabelas ou views analiticas do PostgreSQL.
 
 KPIs recomendados:
 
