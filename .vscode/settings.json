@@ -1,0 +1,17 @@
+{
+  "files.exclude": {
+    "**/.angular": true,
+    "**/.vercel": true,
+    "**/dist": true,
+    "**/node_modules": true,
+    "**/out-tsc": true
+  },
+  "search.exclude": {
+    "**/.angular": true,
+    "**/.vercel": true,
+    "**/dist": true,
+    "**/node_modules": true,
+    "**/out-tsc": true
+  },
+  "typescript.tsdk": "node_modules/typescript/lib"
+}

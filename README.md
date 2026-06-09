@@ -45,6 +45,7 @@ Aplicacao web da Fase 1 do projeto Sport Clube Lanches. O objetivo e permitir qu
 - Plano e arquitetura: `docs/ARQUITETURA-E-PLANO-DO-PROJETO.md`
 - Fase 1: `docs/FASE-1-CARDAPIO-DIGITAL.md`
 - Fase 2: `docs/FASE-2-BACKEND-PERSISTENCIA.md`
+- Supabase: `docs/SUPABASE-SETUP.md`
 - WhatsApp Business: `docs/WHATSAPP-BUSINESS.md`
 - Observabilidade e KPIs: `docs/OBSERVABILIDADE-KPIS.md`
 - PDF original: `docs/references/initial-documentation/Documentação Inicial do Projeto Delivery.pdf`

@@ -11,6 +11,13 @@
 npm-debug.log
 yarn-error.log
 
+# Python / Streamlit local env
+.venv/
+analytics/streamlit/.env
+analytics/streamlit/.streamlit/secrets.toml
+__pycache__/
+*.pyc
+
 # IDEs and editors
 .idea/
 .project
