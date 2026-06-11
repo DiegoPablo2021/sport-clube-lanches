@@ -5,6 +5,7 @@ import { CheckoutInfo } from '../../core/models/menu.models';
 import { businessConfig } from '../../core/config/business.config';
 import { CartService } from '../../core/services/cart.service';
 import { DeliveryFeeService } from '../../core/services/delivery-fee.service';
+import { OrderPersistenceService } from '../../core/services/order-persistence.service';
 import { WhatsappService } from '../../core/services/whatsapp.service';
 import { categories, products } from '../../data/menu.data';
 import { BrlCurrencyPipe } from '../../shared/pipes/brl-currency.pipe';
@@ -19,10 +20,12 @@ import { BrlCurrencyPipe } from '../../shared/pipes/brl-currency.pipe';
 export class MenuPageComponent {
   private readonly whatsappService = inject(WhatsappService);
   private readonly deliveryFeeService = inject(DeliveryFeeService);
+  private readonly orderPersistenceService = inject(OrderPersistenceService);
   readonly cart = inject(CartService);
   readonly business = businessConfig;
   readonly categories = categories;
   readonly selectedCategoryId = signal(categories[0].id);
+  readonly savingOrder = signal(false);
   readonly checkout: CheckoutInfo = {
     name: '',
     phone: '',
@@ -66,8 +69,41 @@ export class MenuPageComponent {
     }
   }
 
-  createWhatsappUrl(): string {
-    return this.whatsappService.buildOrderUrl(this.cart.items(), this.checkout);
+  async sendOrderToWhatsapp(): Promise<void> {
+    if (this.cart.totalItems() === 0 || this.savingOrder()) {
+      return;
+    }
+
+    this.savingOrder.set(true);
+    const whatsappWindow = window.open('about:blank', '_blank', 'noopener,noreferrer');
+
+    try {
+      const persistedOrder = await this.orderPersistenceService.createOrder(
+        this.cart.items(),
+        this.checkout,
+      );
+      const checkout =
+        persistedOrder === null
+          ? this.checkout
+          : {
+              ...this.checkout,
+              notes: [
+                `Pedido #${persistedOrder.order_number} registrado no sistema.`,
+                this.checkout.notes,
+              ]
+                .filter(Boolean)
+                .join(' '),
+            };
+      const url = this.whatsappService.buildOrderUrl(this.cart.items(), checkout);
+
+      if (whatsappWindow) {
+        whatsappWindow.location.href = url;
+      } else {
+        window.location.href = url;
+      }
+    } finally {
+      this.savingOrder.set(false);
+    }
   }
 
   getDeliveryFeeNotice(): string {

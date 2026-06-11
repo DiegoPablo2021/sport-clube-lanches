@@ -31,6 +31,7 @@ https://github.com/DiegoPablo2021/sport-clube-lanches
 
 - Cardapio digital responsivo.
 - Categorias e produtos cadastrados a partir das artes originais.
+- Fotos reais adicionais extraidas de `docs/references/menu-images/mais-fotos/Mais fotos.docx`.
 - Promocoes e combos em destaque.
 - Carrinho local.
 - Dados do cliente: nome e telefone.
@@ -42,6 +43,7 @@ https://github.com/DiegoPablo2021/sport-clube-lanches
 - Campo de troco quando pagamento for dinheiro.
 - Observacao livre do pedido.
 - Geracao de mensagem pronta para WhatsApp.
+- Persistencia opcional de pedidos no Supabase antes de abrir o WhatsApp.
 
 ## Stack
 
@@ -129,6 +131,7 @@ Migrations:
 - `supabase/migrations/0001_core_schema.sql`
 - `supabase/migrations/0002_analytics_views.sql`
 - `supabase/migrations/0003_public_order_rpc.sql`
+- `supabase/seed.sql`
 
 Tabelas principais:
 
@@ -146,6 +149,20 @@ public.create_public_order(payload jsonb)
 ```
 
 Essa funcao valida produtos ativos e usa os precos do banco, evitando confiar em preco enviado pelo navegador.
+
+Para regenerar o seed do catalogo a partir do cardapio Angular:
+
+```bash
+npm run seed:supabase
+```
+
+Para ativar a gravacao de pedidos no frontend, preencher `src/environments/environment.prod.ts` com:
+
+```ts
+supabaseUrl: 'https://SEU-PROJETO.supabase.co',
+supabaseAnonKey: 'SUA_ANON_KEY',
+persistOrders: true,
+```
 
 ## DataViz, KPIs e BI
 
@@ -213,6 +230,21 @@ Recomendacao:
 - Evitar conectar diretamente nas tabelas operacionais.
 - Preservar dados sensiveis de cliente, como telefone e endereco.
 
+Materiais de apoio:
+
+- `analytics/powerbi/README.md`
+- `analytics/powerbi/power-query.md`
+- `analytics/powerbi/measures.dax`
+
+## Impressora de pedidos
+
+A impressora USB/Bluetooth foi documentada como uma fase tecnica propria.
+
+Referencia:
+
+- `docs/IMPRESSORA-PEDIDOS.md`
+- `docs/references/printer/impressora-pedidos-usb-bluetooth.mp4`
+
 ## Documentacao
 
 - Requirements: `docs/REQUIREMENTS.md`
@@ -222,15 +254,18 @@ Recomendacao:
 - Supabase: `docs/SUPABASE-SETUP.md`
 - WhatsApp Business: `docs/WHATSAPP-BUSINESS.md`
 - Observabilidade e KPIs: `docs/OBSERVABILIDADE-KPIS.md`
+- Impressora de pedidos: `docs/IMPRESSORA-PEDIDOS.md`
 
 ## Status atual
 
 - Fase 1 publicada.
 - GitHub conectado a Vercel.
 - Base Supabase versionada em SQL.
+- Frontend preparado para persistencia opcional no Supabase.
 - Streamlit inicial criado.
 - Views de BI preparadas.
-- Proximo passo: criar/logar no Supabase, aplicar migrations e conectar o frontend ao `create_public_order`.
+- Power BI Desktop documentado.
+- Proximo passo: logar no Supabase, criar o projeto real, aplicar migrations, rodar seed e preencher as chaves do ambiente.
 
 ## Desenvolvedor
 

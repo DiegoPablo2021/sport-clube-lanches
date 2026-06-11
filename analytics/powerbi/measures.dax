@@ -1,0 +1,43 @@
+Faturamento = SUM('vw_orders_base'[total_amount])
+
+Pedidos = COUNTROWS('vw_orders_base')
+
+Pedidos Cancelados =
+CALCULATE(
+    COUNTROWS('vw_orders_base'),
+    'vw_orders_base'[order_status] = "cancelled"
+)
+
+Clientes Unicos = DISTINCTCOUNT('vw_orders_base'[customer_phone])
+
+Ticket Medio = DIVIDE([Faturamento], [Pedidos])
+
+Faturamento Hoje =
+CALCULATE(
+    [Faturamento],
+    FILTER(
+        'vw_orders_base',
+        DATEVALUE('vw_orders_base'[created_at]) = TODAY()
+    )
+)
+
+Pedidos Hoje =
+CALCULATE(
+    [Pedidos],
+    FILTER(
+        'vw_orders_base',
+        DATEVALUE('vw_orders_base'[created_at]) = TODAY()
+    )
+)
+
+Faturamento Mes Atual =
+CALCULATE(
+    [Faturamento],
+    FILTER(
+        'vw_orders_base',
+        YEAR('vw_orders_base'[created_at]) = YEAR(TODAY())
+            && MONTH('vw_orders_base'[created_at]) = MONTH(TODAY())
+    )
+)
+
+Taxa Cancelamento = DIVIDE([Pedidos Cancelados], [Pedidos])

@@ -46,6 +46,7 @@ begin
     neighborhood,
     delivery_fee_label,
     payment_method,
+    change_for,
     subtotal_amount,
     total_amount,
     notes,
@@ -58,6 +59,7 @@ begin
     payload->>'neighborhood',
     payload->>'delivery_fee_label',
     coalesce(nullif(payload->>'payment_method', ''), 'A combinar'),
+    payload->>'change_for',
     0,
     0,
     payload->>'notes',
@@ -70,11 +72,11 @@ begin
     select *
     into product_record
     from public.products
-    where id = (item->>'product_id')::uuid
+    where slug = item->>'product_slug'
       and active = true;
 
     if not found then
-      raise exception 'Invalid or inactive product: %', item->>'product_id';
+      raise exception 'Invalid or inactive product: %', item->>'product_slug';
     end if;
 
     item_quantity := greatest(coalesce((item->>'quantity')::integer, 1), 1);

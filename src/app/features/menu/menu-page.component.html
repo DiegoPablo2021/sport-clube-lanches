@@ -87,16 +87,16 @@
       <span>{{ cart.totalItems() }} itens</span>
       <strong>{{ cart.totalAmount() | brlCurrency }}</strong>
     </div>
-    <a
+    <button
+      type="button"
       class="send-order"
-      [class.disabled]="cart.totalItems() === 0"
-      [href]="cart.totalItems() > 0 ? createWhatsappUrl() : null"
-      target="_blank"
-      rel="noreferrer"
+      [class.disabled]="cart.totalItems() === 0 || savingOrder()"
+      [disabled]="cart.totalItems() === 0 || savingOrder()"
+      (click)="sendOrderToWhatsapp()"
       aria-label="Enviar pedido no WhatsApp"
     >
-      Enviar pedido no WhatsApp
-    </a>
+      {{ savingOrder() ? 'Registrando pedido...' : 'Enviar pedido no WhatsApp' }}
+    </button>
   </div>
 
   @if (cart.items().length > 0) {

@@ -10,36 +10,23 @@ Na Fase 1, o pedido e montado no cardapio e enviado ao WhatsApp, mas nao fica sa
 
 Na Fase 2, cada pedido deve ser registrado antes ou durante o envio ao WhatsApp.
 
-## Stack sugerida
+## Stack definida para a primeira entrega
 
-- Node.js
-- TypeScript
-- NestJS ou Fastify
-- Prisma ou Drizzle
 - Supabase PostgreSQL
-- Zod para validacao
+- Row Level Security
+- Funcao RPC `public.create_public_order(payload jsonb)`
+- Frontend Angular com persistencia opcional via `@supabase/supabase-js`
+- Streamlit para prototipo de dashboard
+- Power BI Desktop para dashboard oficial futuro
 
-## Modulos iniciais
-
-```text
-delivery-srv-admin/
-  src/
-    modules/
-      categories/
-      products/
-      customers/
-      orders/
-      settings/
-    shared/
-    database/
-    server.ts
-```
+Um backend dedicado em Node.js/NestJS ou Fastify continua sendo uma evolucao possivel, mas nao e obrigatorio para a primeira gravacao real de pedidos.
 
 ## Entidades principais
 
 ### categories
 
 - `id`
+- `slug`
 - `name`
 - `description`
 - `active`
@@ -50,6 +37,7 @@ delivery-srv-admin/
 ### products
 
 - `id`
+- `slug`
 - `category_id`
 - `name`
 - `description`
@@ -78,6 +66,7 @@ delivery-srv-admin/
 - `neighborhood`
 - `delivery_fee_label`
 - `payment_method`
+- `change_for`
 - `payment_status`
 - `order_status`
 - `subtotal_amount`
@@ -109,9 +98,9 @@ delivery-srv-admin/
 
 ```text
 Cliente monta pedido
-  -> frontend envia pedido para API
-  -> API cria pedido com status "novo"
-  -> API retorna numero do pedido
+  -> frontend chama create_public_order no Supabase
+  -> Supabase cria pedido com status "new"
+  -> Supabase retorna numero do pedido
   -> frontend abre WhatsApp com numero e resumo do pedido
 ```
 
@@ -127,13 +116,11 @@ Cliente monta pedido
 - `finalizado`
 - `cancelado`
 
-## APIs iniciais
+## Contrato inicial
 
-- `GET /categories`
-- `GET /products`
-- `POST /orders`
-- `GET /orders/:id`
-- `PATCH /orders/:id/status`
+- `select` publico em categorias e produtos ativos.
+- `rpc create_public_order(payload jsonb)` para gravar pedidos.
+- Status e eventos registrados em `orders` e `order_events`.
 
 ## Dashboard e dados
 
@@ -153,11 +140,26 @@ O Power BI deve consumir os dados do Supabase, preferencialmente por views anali
 ## Views analiticas sugeridas
 
 - `vw_daily_sales`
+- `vw_weekday_sales`
+- `vw_period_sales`
 - `vw_product_sales`
+- `vw_category_sales`
 - `vw_payment_methods`
 - `vw_neighborhood_sales`
-- `vw_order_status_history`
+- `vw_order_type_sales`
+- `vw_hourly_sales`
 - `vw_customer_recurrence`
+- `vw_customer_promotion_candidates`
+- `vw_customer_favorite_products`
+- `vw_kpi_snapshot`
+
+## Relacao com impressao de pedidos
+
+A impressora USB/Bluetooth entra melhor na Fase 3, consumindo os pedidos ja salvos no Supabase.
+
+Referencia:
+
+- `docs/IMPRESSORA-PEDIDOS.md`
 
 ## Criterios de pronto
 

@@ -2,6 +2,7 @@ create extension if not exists pgcrypto;
 
 create table if not exists public.categories (
   id uuid primary key default gen_random_uuid(),
+  slug text not null,
   name text not null,
   description text,
   active boolean not null default true,
@@ -12,6 +13,7 @@ create table if not exists public.categories (
 
 create table if not exists public.products (
   id uuid primary key default gen_random_uuid(),
+  slug text not null,
   category_id uuid not null references public.categories(id),
   name text not null,
   description text,
@@ -41,6 +43,7 @@ create table if not exists public.orders (
   neighborhood text,
   delivery_fee_label text,
   payment_method text not null default 'A combinar',
+  change_for text,
   payment_status text not null default 'pending' check (payment_status in ('pending', 'paid', 'refunded', 'cancelled')),
   order_status text not null default 'new' check (order_status in ('new', 'awaiting_confirmation', 'awaiting_payment', 'paid', 'in_preparation', 'ready', 'out_for_delivery', 'finished', 'cancelled')),
   subtotal_amount numeric(10, 2) not null default 0 check (subtotal_amount >= 0),
@@ -72,6 +75,8 @@ create table if not exists public.order_events (
 );
 
 create index if not exists products_category_id_idx on public.products(category_id);
+create unique index if not exists categories_slug_key on public.categories(slug);
+create unique index if not exists products_slug_key on public.products(slug);
 create index if not exists products_active_idx on public.products(active) where active = true;
 create index if not exists orders_customer_id_idx on public.orders(customer_id);
 create index if not exists orders_created_at_idx on public.orders(created_at desc);

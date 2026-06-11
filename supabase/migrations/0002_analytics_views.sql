@@ -6,6 +6,7 @@ select
   o.order_type,
   o.neighborhood,
   o.payment_method,
+  o.change_for,
   o.payment_status,
   o.order_status,
   o.subtotal_amount,
