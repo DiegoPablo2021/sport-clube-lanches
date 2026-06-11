@@ -1,5 +1,7 @@
+-- Habilita geracao de UUIDs com gen_random_uuid().
 create extension if not exists pgcrypto;
 
+-- Categorias do cardapio, usadas para agrupar produtos na tela.
 create table if not exists public.categories (
   id uuid primary key default gen_random_uuid(),
   slug text not null,
@@ -11,6 +13,7 @@ create table if not exists public.categories (
   updated_at timestamptz not null default now()
 );
 
+-- Produtos vendidos no cardapio, com preco, imagem e destaque.
 create table if not exists public.products (
   id uuid primary key default gen_random_uuid(),
   slug text not null,
@@ -25,6 +28,7 @@ create table if not exists public.products (
   updated_at timestamptz not null default now()
 );
 
+-- Clientes identificados principalmente pelo telefone informado no pedido.
 create table if not exists public.customers (
   id uuid primary key default gen_random_uuid(),
   name text not null,
@@ -34,6 +38,7 @@ create table if not exists public.customers (
   constraint customers_phone_key unique (phone)
 );
 
+-- Cabecalho do pedido: cliente, entrega/retirada, pagamento, valores e status.
 create table if not exists public.orders (
   id uuid primary key default gen_random_uuid(),
   order_number bigint generated always as identity,
@@ -55,6 +60,7 @@ create table if not exists public.orders (
   constraint orders_order_number_key unique (order_number)
 );
 
+-- Itens do pedido. A exclusao em cascata remove os itens quando o pedido e apagado.
 create table if not exists public.order_items (
   id uuid primary key default gen_random_uuid(),
   order_id uuid not null references public.orders(id) on delete cascade,
@@ -66,6 +72,7 @@ create table if not exists public.order_items (
   created_at timestamptz not null default now()
 );
 
+-- Eventos de auditoria do pedido, como criacao e impressao da comanda.
 create table if not exists public.order_events (
   id uuid primary key default gen_random_uuid(),
   order_id uuid not null references public.orders(id) on delete cascade,
@@ -74,6 +81,7 @@ create table if not exists public.order_events (
   created_at timestamptz not null default now()
 );
 
+-- Indices para acelerar buscas frequentes do cardapio, pedidos, itens e eventos.
 create index if not exists products_category_id_idx on public.products(category_id);
 create unique index if not exists categories_slug_key on public.categories(slug);
 create unique index if not exists products_slug_key on public.products(slug);
@@ -86,6 +94,7 @@ create index if not exists order_items_order_id_idx on public.order_items(order_
 create index if not exists order_items_product_id_idx on public.order_items(product_id);
 create index if not exists order_events_order_id_created_at_idx on public.order_events(order_id, created_at desc);
 
+-- Funcao generica para atualizar updated_at automaticamente em alteracoes.
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql
@@ -96,6 +105,7 @@ begin
 end;
 $$;
 
+-- Triggers que aplicam updated_at nas tabelas editaveis.
 drop trigger if exists categories_set_updated_at on public.categories;
 create trigger categories_set_updated_at
 before update on public.categories
@@ -116,6 +126,7 @@ create trigger orders_set_updated_at
 before update on public.orders
 for each row execute function public.set_updated_at();
 
+-- Ativa Row Level Security. Sem policies explicitas, tabelas sensiveis nao ficam abertas.
 alter table public.categories enable row level security;
 alter table public.products enable row level security;
 alter table public.customers enable row level security;
@@ -123,6 +134,7 @@ alter table public.orders enable row level security;
 alter table public.order_items enable row level security;
 alter table public.order_events enable row level security;
 
+-- Permite leitura publica apenas das categorias ativas do cardapio.
 drop policy if exists "Public can read active categories" on public.categories;
 create policy "Public can read active categories"
 on public.categories
@@ -130,6 +142,7 @@ for select
 to anon, authenticated
 using (active = true);
 
+-- Permite leitura publica apenas dos produtos ativos do cardapio.
 drop policy if exists "Public can read active products" on public.products;
 create policy "Public can read active products"
 on public.products

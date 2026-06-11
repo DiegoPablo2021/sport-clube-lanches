@@ -1,3 +1,4 @@
+-- RPC publica chamada pelo cardapio Angular para registrar pedidos reais.
 create or replace function public.create_public_order(payload jsonb)
 returns table (
   order_id uuid,
@@ -16,6 +17,7 @@ declare
   item_quantity integer;
   calculated_subtotal numeric(10, 2) := 0;
 begin
+  -- Validacoes minimas para evitar pedido sem telefone ou sem itens.
   if payload is null then
     raise exception 'Payload is required';
   end if;
@@ -28,6 +30,7 @@ begin
     raise exception 'At least one item is required';
   end if;
 
+  -- Cria ou atualiza o cliente usando telefone como chave unica.
   insert into public.customers (name, phone)
   values (
     coalesce(nullif(payload->>'customer_name', ''), 'A informar'),
@@ -39,6 +42,7 @@ begin
     updated_at = now()
   returning * into customer_record;
 
+  -- Cria o cabecalho do pedido. Os valores entram zerados e sao calculados abaixo.
   insert into public.orders (
     customer_id,
     order_type,
@@ -67,6 +71,7 @@ begin
   )
   returning * into order_record;
 
+  -- Percorre os itens enviados, valida produto ativo e grava cada item do pedido.
   for item in select * from jsonb_array_elements(payload->'items')
   loop
     select *
@@ -101,6 +106,7 @@ begin
     calculated_subtotal := calculated_subtotal + (product_record.price * item_quantity);
   end loop;
 
+  -- Atualiza subtotal e total com base nos itens realmente gravados.
   update public.orders
   set
     subtotal_amount = calculated_subtotal,
@@ -108,6 +114,7 @@ begin
   where id = order_record.id
   returning * into order_record;
 
+  -- Registra evento de auditoria para rastrear a origem e payload do pedido.
   insert into public.order_events (order_id, event_type, payload)
   values (order_record.id, 'order.created', payload);
 
@@ -116,5 +123,6 @@ begin
 end;
 $$;
 
+-- Libera apenas a execucao da RPC para usuarios anonimos/autenticados.
 revoke all on function public.create_public_order(jsonb) from public;
 grant execute on function public.create_public_order(jsonb) to anon, authenticated;

@@ -1,8 +1,10 @@
 -- ============================================================
 -- supabase/migrations/0001_core_schema.sql
 -- ============================================================
+-- Habilita geracao de UUIDs com gen_random_uuid().
 create extension if not exists pgcrypto;
 
+-- Categorias do cardapio, usadas para agrupar produtos na tela.
 create table if not exists public.categories (
   id uuid primary key default gen_random_uuid(),
   slug text not null,
@@ -14,6 +16,7 @@ create table if not exists public.categories (
   updated_at timestamptz not null default now()
 );
 
+-- Produtos vendidos no cardapio, com preco, imagem e destaque.
 create table if not exists public.products (
   id uuid primary key default gen_random_uuid(),
   slug text not null,
@@ -28,6 +31,7 @@ create table if not exists public.products (
   updated_at timestamptz not null default now()
 );
 
+-- Clientes identificados principalmente pelo telefone informado no pedido.
 create table if not exists public.customers (
   id uuid primary key default gen_random_uuid(),
   name text not null,
@@ -37,6 +41,7 @@ create table if not exists public.customers (
   constraint customers_phone_key unique (phone)
 );
 
+-- Cabecalho do pedido: cliente, entrega/retirada, pagamento, valores e status.
 create table if not exists public.orders (
   id uuid primary key default gen_random_uuid(),
   order_number bigint generated always as identity,
@@ -58,6 +63,7 @@ create table if not exists public.orders (
   constraint orders_order_number_key unique (order_number)
 );
 
+-- Itens do pedido. A exclusao em cascata remove os itens quando o pedido e apagado.
 create table if not exists public.order_items (
   id uuid primary key default gen_random_uuid(),
   order_id uuid not null references public.orders(id) on delete cascade,
@@ -69,6 +75,7 @@ create table if not exists public.order_items (
   created_at timestamptz not null default now()
 );
 
+-- Eventos de auditoria do pedido, como criacao e impressao da comanda.
 create table if not exists public.order_events (
   id uuid primary key default gen_random_uuid(),
   order_id uuid not null references public.orders(id) on delete cascade,
@@ -77,6 +84,7 @@ create table if not exists public.order_events (
   created_at timestamptz not null default now()
 );
 
+-- Indices para acelerar buscas frequentes do cardapio, pedidos, itens e eventos.
 create index if not exists products_category_id_idx on public.products(category_id);
 create unique index if not exists categories_slug_key on public.categories(slug);
 create unique index if not exists products_slug_key on public.products(slug);
@@ -89,6 +97,7 @@ create index if not exists order_items_order_id_idx on public.order_items(order_
 create index if not exists order_items_product_id_idx on public.order_items(product_id);
 create index if not exists order_events_order_id_created_at_idx on public.order_events(order_id, created_at desc);
 
+-- Funcao generica para atualizar updated_at automaticamente em alteracoes.
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql
@@ -99,6 +108,7 @@ begin
 end;
 $$;
 
+-- Triggers que aplicam updated_at nas tabelas editaveis.
 drop trigger if exists categories_set_updated_at on public.categories;
 create trigger categories_set_updated_at
 before update on public.categories
@@ -119,6 +129,7 @@ create trigger orders_set_updated_at
 before update on public.orders
 for each row execute function public.set_updated_at();
 
+-- Ativa Row Level Security. Sem policies explicitas, tabelas sensiveis nao ficam abertas.
 alter table public.categories enable row level security;
 alter table public.products enable row level security;
 alter table public.customers enable row level security;
@@ -126,6 +137,7 @@ alter table public.orders enable row level security;
 alter table public.order_items enable row level security;
 alter table public.order_events enable row level security;
 
+-- Permite leitura publica apenas das categorias ativas do cardapio.
 drop policy if exists "Public can read active categories" on public.categories;
 create policy "Public can read active categories"
 on public.categories
@@ -133,6 +145,7 @@ for select
 to anon, authenticated
 using (active = true);
 
+-- Permite leitura publica apenas dos produtos ativos do cardapio.
 drop policy if exists "Public can read active products" on public.products;
 create policy "Public can read active products"
 on public.products
@@ -143,6 +156,7 @@ using (active = true);
 -- ============================================================
 -- supabase/migrations/0002_analytics_views.sql
 -- ============================================================
+-- Base consolidada de pedidos com dados do cliente. Serve como consulta operacional.
 create or replace view public.vw_orders_base as
 select
   o.id,
@@ -161,6 +175,7 @@ select
 from public.orders o
 left join public.customers c on c.id = o.customer_id;
 
+-- Vendas por dia: pedidos, cancelamentos, faturamento e ticket medio.
 create or replace view public.vw_daily_sales as
 select
   date_trunc('day', created_at)::date as order_date,
@@ -172,6 +187,7 @@ from public.orders
 group by 1
 order by 1 desc;
 
+-- Vendas por dia da semana, util para descobrir os dias mais fortes.
 create or replace view public.vw_weekday_sales as
 select
   extract(isodow from created_at)::integer as weekday_number,
@@ -191,6 +207,7 @@ from public.orders
 group by 1, 2
 order by 1;
 
+-- Vendas agregadas por dia, semana, mes, trimestre, semestre e ano.
 create or replace view public.vw_period_sales as
 select
   'day' as period_type,
@@ -250,6 +267,7 @@ select
 from public.orders
 group by 1, 2;
 
+-- Produtos mais vendidos e faturamento por produto.
 create or replace view public.vw_product_sales as
 select
   oi.product_id,
@@ -263,6 +281,7 @@ where o.order_status <> 'cancelled'
 group by oi.product_id, oi.product_name
 order by gross_revenue desc;
 
+-- Faturamento por categoria do cardapio.
 create or replace view public.vw_category_sales as
 select
   c.id as category_id,
@@ -278,6 +297,7 @@ where o.order_status <> 'cancelled'
 group by c.id, c.name
 order by gross_revenue desc;
 
+-- Distribuicao das formas de pagamento usadas nos pedidos.
 create or replace view public.vw_payment_methods as
 select
   payment_method,
@@ -288,6 +308,7 @@ where order_status <> 'cancelled'
 group by payment_method
 order by total_orders desc;
 
+-- Bairros/localidades com mais pedidos e maior faturamento.
 create or replace view public.vw_neighborhood_sales as
 select
   coalesce(nullif(trim(neighborhood), ''), 'Retirada') as neighborhood,
@@ -299,6 +320,7 @@ where order_status <> 'cancelled'
 group by 1
 order by total_orders desc;
 
+-- Compara entrega e retirada.
 create or replace view public.vw_order_type_sales as
 select
   order_type,
@@ -310,6 +332,7 @@ where order_status <> 'cancelled'
 group by order_type
 order by total_orders desc;
 
+-- Pedidos por hora do dia, usado para identificar horario de pico.
 create or replace view public.vw_hourly_sales as
 select
   extract(hour from created_at)::integer as order_hour,
@@ -319,6 +342,7 @@ from public.orders
 group by 1
 order by 1;
 
+-- Ranking de clientes por quantidade de pedidos e faturamento.
 create or replace view public.vw_customer_recurrence as
 select
   c.id as customer_id,
@@ -333,6 +357,7 @@ left join public.orders o on o.customer_id = c.id
 group by c.id, c.name, c.phone
 order by total_orders desc, gross_revenue desc;
 
+-- Clientes candidatos a promocao com base em frequencia/valor nos ultimos 30 dias.
 create or replace view public.vw_customer_promotion_candidates as
 select
   c.id as customer_id,
@@ -363,6 +388,7 @@ left join public.orders o on o.customer_id = c.id
 group by c.id, c.name, c.phone
 order by orders_last_30_days desc, revenue_last_30_days desc;
 
+-- Produtos favoritos de cada cliente, limitado aos 3 mais comprados.
 create or replace view public.vw_customer_favorite_products as
 select
   customer_id,
@@ -393,6 +419,7 @@ from (
 where product_rank <= 3
 order by customer_name, product_rank;
 
+-- Snapshot geral para cards de KPI no dashboard.
 create or replace view public.vw_kpi_snapshot as
 select
   count(*) filter (where order_status <> 'cancelled') as total_orders,
@@ -410,6 +437,7 @@ select
   count(distinct customer_id) filter (where order_status <> 'cancelled') as unique_customers
 from public.orders;
 
+-- Quantidade e valor por status do pedido.
 create or replace view public.vw_order_status_summary as
 select
   order_status,
@@ -422,6 +450,7 @@ order by total_orders desc;
 -- ============================================================
 -- supabase/migrations/0003_public_order_rpc.sql
 -- ============================================================
+-- RPC publica chamada pelo cardapio Angular para registrar pedidos reais.
 create or replace function public.create_public_order(payload jsonb)
 returns table (
   order_id uuid,
@@ -440,6 +469,7 @@ declare
   item_quantity integer;
   calculated_subtotal numeric(10, 2) := 0;
 begin
+  -- Validacoes minimas para evitar pedido sem telefone ou sem itens.
   if payload is null then
     raise exception 'Payload is required';
   end if;
@@ -452,6 +482,7 @@ begin
     raise exception 'At least one item is required';
   end if;
 
+  -- Cria ou atualiza o cliente usando telefone como chave unica.
   insert into public.customers (name, phone)
   values (
     coalesce(nullif(payload->>'customer_name', ''), 'A informar'),
@@ -463,6 +494,7 @@ begin
     updated_at = now()
   returning * into customer_record;
 
+  -- Cria o cabecalho do pedido. Os valores entram zerados e sao calculados abaixo.
   insert into public.orders (
     customer_id,
     order_type,
@@ -491,6 +523,7 @@ begin
   )
   returning * into order_record;
 
+  -- Percorre os itens enviados, valida produto ativo e grava cada item do pedido.
   for item in select * from jsonb_array_elements(payload->'items')
   loop
     select *
@@ -525,6 +558,7 @@ begin
     calculated_subtotal := calculated_subtotal + (product_record.price * item_quantity);
   end loop;
 
+  -- Atualiza subtotal e total com base nos itens realmente gravados.
   update public.orders
   set
     subtotal_amount = calculated_subtotal,
@@ -532,6 +566,7 @@ begin
   where id = order_record.id
   returning * into order_record;
 
+  -- Registra evento de auditoria para rastrear a origem e payload do pedido.
   insert into public.order_events (order_id, event_type, payload)
   values (order_record.id, 'order.created', payload);
 
@@ -540,12 +575,14 @@ begin
 end;
 $$;
 
+-- Libera apenas a execucao da RPC para usuarios anonimos/autenticados.
 revoke all on function public.create_public_order(jsonb) from public;
 grant execute on function public.create_public_order(jsonb) to anon, authenticated;
 
 -- ============================================================
 -- supabase/migrations/0004_printing_rpc.sql
 -- ============================================================
+-- Busca pedidos ainda nao impressos para o agente local da impressora.
 create or replace function public.get_pending_print_orders(limit_count integer default 10)
 returns table (
   order_id uuid,
@@ -608,6 +645,7 @@ as $$
   limit greatest(coalesce(limit_count, 10), 1);
 $$;
 
+-- Marca pedido como impresso gravando evento de auditoria.
 create or replace function public.mark_order_printed(target_order_id uuid, printer_name text default null)
 returns void
 language plpgsql
@@ -627,6 +665,7 @@ begin
 end;
 $$;
 
+-- Funcoes de impressao usam service_role porque rodam apenas no agente local.
 revoke all on function public.get_pending_print_orders(integer) from public;
 revoke all on function public.mark_order_printed(uuid, text) from public;
 grant execute on function public.get_pending_print_orders(integer) to service_role;
@@ -635,6 +674,7 @@ grant execute on function public.mark_order_printed(uuid, text) to service_role;
 -- ============================================================
 -- supabase/migrations/0005_advanced_kpi_views.sql
 -- ============================================================
+-- Vendas diarias por produto, util para tendencias e ranking por periodo.
 create or replace view public.vw_product_daily_sales as
 select
   date_trunc('day', o.created_at)::date as order_date,
@@ -649,6 +689,7 @@ where o.order_status <> 'cancelled'
 group by 1, 2, 3
 order by order_date desc, gross_revenue desc;
 
+-- Mapa de calor com dia da semana x hora, usado para identificar picos.
 create or replace view public.vw_hour_weekday_heatmap as
 select
   extract(isodow from created_at)::integer as weekday_number,
@@ -668,6 +709,7 @@ from public.orders
 group by 1, 2, 3
 order by 1, 3;
 
+-- Classifica pedidos pelo volume de itens: individual, medio ou grande.
 create or replace view public.vw_basket_summary as
 select
   o.id as order_id,
@@ -687,6 +729,7 @@ where o.order_status <> 'cancelled'
 group by o.id, o.order_number, o.created_at, o.total_amount
 order by o.created_at desc;
 
+-- Pares de produtos comprados juntos, util para combos e sugestoes.
 create or replace view public.vw_product_pair_sales as
 select
   least(i1.product_name, i2.product_name) as product_a,
@@ -702,6 +745,7 @@ where o.order_status <> 'cancelled'
 group by 1, 2
 order by orders_together desc, related_revenue desc;
 
+-- Segmenta clientes por recencia de compra para acoes de relacionamento.
 create or replace view public.vw_customer_lifecycle as
 with customer_metrics as (
   select
@@ -736,6 +780,7 @@ select
 from customer_metrics
 order by gross_revenue desc, total_orders desc;
 
+-- Resumo operacional do dia atual para acompanhar pedidos abertos e receita.
 create or replace view public.vw_daily_operational_summary as
 select
   current_date as reference_date,
@@ -764,8 +809,10 @@ from public.orders;
 -- ============================================================
 -- supabase/migrations/0006_api_view_grants.sql
 -- ============================================================
+-- Permite que a API REST do Supabase leia objetos do schema public.
 grant usage on schema public to anon, authenticated;
 
+-- Libera leitura das views de analytics para o Streamlit e futuros dashboards.
 grant select on
   public.vw_orders_base,
   public.vw_daily_sales,
@@ -796,6 +843,7 @@ to anon, authenticated;
 -- Seed completo gerado a partir de src/app/data/menu.data.ts.
 -- Regerar sempre que o cardapio estatico mudar.
 
+-- Carga das categorias do cardapio.
 with category_seed(slug, name, description, active, sort_order) as (
   values
   ('promocoes', 'Promocoes', 'Combos e ofertas para pedir rapido.', true, 1),
@@ -818,6 +866,7 @@ on conflict (slug) do update set
   sort_order = excluded.sort_order,
   updated_at = now();
 
+-- Carga dos produtos do cardapio, sempre ligada a categoria pelo slug.
 with product_seed(slug, category_slug, name, description, price, image_url, active, highlight) as (
   values
   ('combo-completo', 'promocoes', 'Combo Completo', '3 hot dogao Andorra, 2 hamburgueres Suecia, porcao de batata com cheddar e refrigerante 1 litro.', 59.99, '/menu-images/combo-completo-semana.jpeg', true, true),
@@ -879,6 +928,7 @@ select
   product_seed.highlight
 from product_seed
 join public.categories on categories.slug = product_seed.category_slug
+-- Atualiza produtos existentes sem duplicar registros.
 on conflict (slug) do update set
   category_id = excluded.category_id,
   name = excluded.name,

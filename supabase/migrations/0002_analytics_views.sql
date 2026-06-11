@@ -1,3 +1,4 @@
+-- Base consolidada de pedidos com dados do cliente. Serve como consulta operacional.
 create or replace view public.vw_orders_base as
 select
   o.id,
@@ -16,6 +17,7 @@ select
 from public.orders o
 left join public.customers c on c.id = o.customer_id;
 
+-- Vendas por dia: pedidos, cancelamentos, faturamento e ticket medio.
 create or replace view public.vw_daily_sales as
 select
   date_trunc('day', created_at)::date as order_date,
@@ -27,6 +29,7 @@ from public.orders
 group by 1
 order by 1 desc;
 
+-- Vendas por dia da semana, util para descobrir os dias mais fortes.
 create or replace view public.vw_weekday_sales as
 select
   extract(isodow from created_at)::integer as weekday_number,
@@ -46,6 +49,7 @@ from public.orders
 group by 1, 2
 order by 1;
 
+-- Vendas agregadas por dia, semana, mes, trimestre, semestre e ano.
 create or replace view public.vw_period_sales as
 select
   'day' as period_type,
@@ -105,6 +109,7 @@ select
 from public.orders
 group by 1, 2;
 
+-- Produtos mais vendidos e faturamento por produto.
 create or replace view public.vw_product_sales as
 select
   oi.product_id,
@@ -118,6 +123,7 @@ where o.order_status <> 'cancelled'
 group by oi.product_id, oi.product_name
 order by gross_revenue desc;
 
+-- Faturamento por categoria do cardapio.
 create or replace view public.vw_category_sales as
 select
   c.id as category_id,
@@ -133,6 +139,7 @@ where o.order_status <> 'cancelled'
 group by c.id, c.name
 order by gross_revenue desc;
 
+-- Distribuicao das formas de pagamento usadas nos pedidos.
 create or replace view public.vw_payment_methods as
 select
   payment_method,
@@ -143,6 +150,7 @@ where order_status <> 'cancelled'
 group by payment_method
 order by total_orders desc;
 
+-- Bairros/localidades com mais pedidos e maior faturamento.
 create or replace view public.vw_neighborhood_sales as
 select
   coalesce(nullif(trim(neighborhood), ''), 'Retirada') as neighborhood,
@@ -154,6 +162,7 @@ where order_status <> 'cancelled'
 group by 1
 order by total_orders desc;
 
+-- Compara entrega e retirada.
 create or replace view public.vw_order_type_sales as
 select
   order_type,
@@ -165,6 +174,7 @@ where order_status <> 'cancelled'
 group by order_type
 order by total_orders desc;
 
+-- Pedidos por hora do dia, usado para identificar horario de pico.
 create or replace view public.vw_hourly_sales as
 select
   extract(hour from created_at)::integer as order_hour,
@@ -174,6 +184,7 @@ from public.orders
 group by 1
 order by 1;
 
+-- Ranking de clientes por quantidade de pedidos e faturamento.
 create or replace view public.vw_customer_recurrence as
 select
   c.id as customer_id,
@@ -188,6 +199,7 @@ left join public.orders o on o.customer_id = c.id
 group by c.id, c.name, c.phone
 order by total_orders desc, gross_revenue desc;
 
+-- Clientes candidatos a promocao com base em frequencia/valor nos ultimos 30 dias.
 create or replace view public.vw_customer_promotion_candidates as
 select
   c.id as customer_id,
@@ -218,6 +230,7 @@ left join public.orders o on o.customer_id = c.id
 group by c.id, c.name, c.phone
 order by orders_last_30_days desc, revenue_last_30_days desc;
 
+-- Produtos favoritos de cada cliente, limitado aos 3 mais comprados.
 create or replace view public.vw_customer_favorite_products as
 select
   customer_id,
@@ -248,6 +261,7 @@ from (
 where product_rank <= 3
 order by customer_name, product_rank;
 
+-- Snapshot geral para cards de KPI no dashboard.
 create or replace view public.vw_kpi_snapshot as
 select
   count(*) filter (where order_status <> 'cancelled') as total_orders,
@@ -265,6 +279,7 @@ select
   count(distinct customer_id) filter (where order_status <> 'cancelled') as unique_customers
 from public.orders;
 
+-- Quantidade e valor por status do pedido.
 create or replace view public.vw_order_status_summary as
 select
   order_status,

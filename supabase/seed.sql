@@ -1,6 +1,7 @@
 -- Seed completo gerado a partir de src/app/data/menu.data.ts.
 -- Regerar sempre que o cardapio estatico mudar.
 
+-- Carga das categorias do cardapio.
 with category_seed(slug, name, description, active, sort_order) as (
   values
   ('promocoes', 'Promocoes', 'Combos e ofertas para pedir rapido.', true, 1),
@@ -23,6 +24,7 @@ on conflict (slug) do update set
   sort_order = excluded.sort_order,
   updated_at = now();
 
+-- Carga dos produtos do cardapio, sempre ligada a categoria pelo slug.
 with product_seed(slug, category_slug, name, description, price, image_url, active, highlight) as (
   values
   ('combo-completo', 'promocoes', 'Combo Completo', '3 hot dogao Andorra, 2 hamburgueres Suecia, porcao de batata com cheddar e refrigerante 1 litro.', 59.99, '/menu-images/combo-completo-semana.jpeg', true, true),
@@ -84,6 +86,7 @@ select
   product_seed.highlight
 from product_seed
 join public.categories on categories.slug = product_seed.category_slug
+-- Atualiza produtos existentes sem duplicar registros.
 on conflict (slug) do update set
   category_id = excluded.category_id,
   name = excluded.name,

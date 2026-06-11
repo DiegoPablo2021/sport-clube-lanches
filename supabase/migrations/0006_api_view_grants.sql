@@ -1,5 +1,7 @@
+-- Permite que a API REST do Supabase leia objetos do schema public.
 grant usage on schema public to anon, authenticated;
 
+-- Libera leitura das views de analytics para o Streamlit e futuros dashboards.
 grant select on
   public.vw_orders_base,
   public.vw_daily_sales,

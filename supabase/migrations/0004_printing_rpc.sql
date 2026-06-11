@@ -1,3 +1,4 @@
+-- Busca pedidos ainda nao impressos para o agente local da impressora.
 create or replace function public.get_pending_print_orders(limit_count integer default 10)
 returns table (
   order_id uuid,
@@ -60,6 +61,7 @@ as $$
   limit greatest(coalesce(limit_count, 10), 1);
 $$;
 
+-- Marca pedido como impresso gravando evento de auditoria.
 create or replace function public.mark_order_printed(target_order_id uuid, printer_name text default null)
 returns void
 language plpgsql
@@ -79,6 +81,7 @@ begin
 end;
 $$;
 
+-- Funcoes de impressao usam service_role porque rodam apenas no agente local.
 revoke all on function public.get_pending_print_orders(integer) from public;
 revoke all on function public.mark_order_printed(uuid, text) from public;
 grant execute on function public.get_pending_print_orders(integer) to service_role;

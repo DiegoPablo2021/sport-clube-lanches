@@ -1,3 +1,4 @@
+-- Vendas diarias por produto, util para tendencias e ranking por periodo.
 create or replace view public.vw_product_daily_sales as
 select
   date_trunc('day', o.created_at)::date as order_date,
@@ -12,6 +13,7 @@ where o.order_status <> 'cancelled'
 group by 1, 2, 3
 order by order_date desc, gross_revenue desc;
 
+-- Mapa de calor com dia da semana x hora, usado para identificar picos.
 create or replace view public.vw_hour_weekday_heatmap as
 select
   extract(isodow from created_at)::integer as weekday_number,
@@ -31,6 +33,7 @@ from public.orders
 group by 1, 2, 3
 order by 1, 3;
 
+-- Classifica pedidos pelo volume de itens: individual, medio ou grande.
 create or replace view public.vw_basket_summary as
 select
   o.id as order_id,
@@ -50,6 +53,7 @@ where o.order_status <> 'cancelled'
 group by o.id, o.order_number, o.created_at, o.total_amount
 order by o.created_at desc;
 
+-- Pares de produtos comprados juntos, util para combos e sugestoes.
 create or replace view public.vw_product_pair_sales as
 select
   least(i1.product_name, i2.product_name) as product_a,
@@ -65,6 +69,7 @@ where o.order_status <> 'cancelled'
 group by 1, 2
 order by orders_together desc, related_revenue desc;
 
+-- Segmenta clientes por recencia de compra para acoes de relacionamento.
 create or replace view public.vw_customer_lifecycle as
 with customer_metrics as (
   select
@@ -99,6 +104,7 @@ select
 from customer_metrics
 order by gross_revenue desc, total_orders desc;
 
+-- Resumo operacional do dia atual para acompanhar pedidos abertos e receita.
 create or replace view public.vw_daily_operational_summary as
 select
   current_date as reference_date,
