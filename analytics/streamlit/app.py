@@ -80,6 +80,17 @@ if not database_url:
 
 engine = create_engine(database_url, pool_pre_ping=True)
 
+try:
+    with engine.connect() as connection:
+        connection.execute(text("select 1"))
+except Exception as exc:
+    st.error(
+        "Nao foi possivel conectar no Supabase. Confira SUPABASE_DB_URL em "
+        "`analytics/streamlit/.env` e reinicie o Streamlit."
+    )
+    st.code(str(exc), language="text")
+    st.stop()
+
 
 def money(value: float) -> str:
     return f"R$ {float(value or 0):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
@@ -91,12 +102,8 @@ def empty_frame(columns: list[str]) -> pd.DataFrame:
 
 @st.cache_data(ttl=300)
 def load_frame(query: str, columns: tuple[str, ...]) -> pd.DataFrame:
-    try:
-        with engine.connect() as connection:
-            return pd.read_sql(text(query), connection)
-    except Exception as exc:
-        st.error(f"Erro ao carregar dados: {exc}")
-        return empty_frame(list(columns))
+    with engine.connect() as connection:
+        return pd.read_sql(text(query), connection)
 
 
 def chart_layout(fig: go.Figure) -> go.Figure:
