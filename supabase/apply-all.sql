@@ -1091,6 +1091,51 @@ revoke all on function public.get_pending_print_orders(integer) from public;
 grant execute on function public.get_pending_print_orders(integer) to service_role;
 
 -- ============================================================
+-- supabase/migrations/0008_menu_beverages_update.sql
+-- ============================================================
+-- Atualiza a categoria Bebidas com Pepsi lata e sucos individuais.
+with bebida_category as (
+  select id
+  from public.categories
+  where slug = 'bebidas'
+),
+product_seed(slug, name, description, price, image_url, active, highlight) as (
+  values
+  ('bebida-pepsi-350', 'Pepsi 350ml', 'Refrigerante Pepsi lata.', 5.50, '/menu-images/img11.jpeg', true, false),
+  ('suco-uva', 'Suco de uva 300ml', 'Adicionar leite custa R$ 2,00.', 5.50, '/menu-images/img11.jpeg', true, false),
+  ('suco-caja', 'Suco de cajá 300ml', 'Adicionar leite custa R$ 2,00.', 5.50, '/menu-images/img11.jpeg', true, false),
+  ('suco-acerola', 'Suco de acerola 300ml', 'Adicionar leite custa R$ 2,00.', 5.50, '/menu-images/img11.jpeg', true, false)
+)
+insert into public.products (slug, category_id, name, description, price, image_url, active, highlight)
+select
+  product_seed.slug,
+  bebida_category.id,
+  product_seed.name,
+  product_seed.description,
+  product_seed.price,
+  product_seed.image_url,
+  product_seed.active,
+  product_seed.highlight
+from product_seed
+cross join bebida_category
+on conflict (slug) do update set
+  category_id = excluded.category_id,
+  name = excluded.name,
+  description = excluded.description,
+  price = excluded.price,
+  image_url = excluded.image_url,
+  active = excluded.active,
+  highlight = excluded.highlight,
+  updated_at = now();
+
+-- Desativa o item antigo que foi substituido por sucos individuais.
+update public.products
+set
+  active = false,
+  updated_at = now()
+where slug = 'suco-uva-caja-acerola';
+
+-- ============================================================
 -- supabase/seed.sql
 -- ============================================================
 -- Seed completo gerado a partir de src/app/data/menu.data.ts.
@@ -1164,10 +1209,13 @@ with product_seed(slug, category_slug, name, description, price, image_url, acti
   ('bebida-guarana-1l', 'bebidas', 'Guaraná 1 litro', 'Refrigerante Guaraná 1L.', 8.50, '/menu-images/img11.jpeg', true, false),
   ('bebida-pepsi-1l', 'bebidas', 'Pepsi 1 litro', 'Refrigerante Pepsi 1L.', 8.50, '/menu-images/img11.jpeg', true, false),
   ('bebida-coca-350', 'bebidas', 'Coca Cola 350ml', 'Refrigerante Coca Cola lata.', 5.50, '/menu-images/img11.jpeg', true, false),
+  ('bebida-pepsi-350', 'bebidas', 'Pepsi 350ml', 'Refrigerante Pepsi lata.', 5.50, '/menu-images/img11.jpeg', true, false),
   ('bebida-guarana-350', 'bebidas', 'Guaraná 350ml', 'Refrigerante Guaraná lata.', 5.00, '/menu-images/img11.jpeg', true, false),
   ('bebida-fanta-uva-350', 'bebidas', 'Fanta Uva 350ml', 'Refrigerante Fanta Uva lata.', 5.00, '/menu-images/img11.jpeg', true, false),
   ('suco-manga-goiaba', 'bebidas', 'Suco de manga e goiaba 300ml', 'Adicionar leite custa R$ 2,00.', 4.50, '/menu-images/img11.jpeg', true, false),
-  ('suco-uva-caja-acerola', 'bebidas', 'Suco de uva, cajá e acerola 300ml', 'Adicionar leite custa R$ 2,00.', 5.50, '/menu-images/img11.jpeg', true, false)
+  ('suco-uva', 'bebidas', 'Suco de uva 300ml', 'Adicionar leite custa R$ 2,00.', 5.50, '/menu-images/img11.jpeg', true, false),
+  ('suco-caja', 'bebidas', 'Suco de cajá 300ml', 'Adicionar leite custa R$ 2,00.', 5.50, '/menu-images/img11.jpeg', true, false),
+  ('suco-acerola', 'bebidas', 'Suco de acerola 300ml', 'Adicionar leite custa R$ 2,00.', 5.50, '/menu-images/img11.jpeg', true, false)
 )
 insert into public.products (slug, category_id, name, description, price, image_url, active, highlight)
 select

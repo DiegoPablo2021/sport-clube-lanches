@@ -555,6 +555,10 @@ button {
 }
 
 @media (max-width: 860px) {
+  .cart-panel.expanded {
+    --mobile-cart-offset: 98px;
+  }
+
   .topbar {
     align-items: flex-start;
     flex-direction: column;
@@ -588,13 +592,18 @@ button {
     height: 100%;
   }
 
-  .cart-summary {
-    align-items: center;
-    flex-direction: row;
+  .cart-panel.expanded .cart-summary {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: var(--mobile-cart-offset) 1fr;
+  }
+
+  .cart-panel.expanded .cart-actions {
+    margin-left: calc(var(--mobile-cart-offset) + 14px);
   }
 
   .cart-summary .send-order {
-    flex: 1 1 auto;
+    width: 100%;
   }
 
   .checkout-total {

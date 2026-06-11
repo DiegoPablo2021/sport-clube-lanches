@@ -69,10 +69,13 @@ with product_seed(slug, category_slug, name, description, price, image_url, acti
   ('bebida-guarana-1l', 'bebidas', 'Guaraná 1 litro', 'Refrigerante Guaraná 1L.', 8.50, '/menu-images/img11.jpeg', true, false),
   ('bebida-pepsi-1l', 'bebidas', 'Pepsi 1 litro', 'Refrigerante Pepsi 1L.', 8.50, '/menu-images/img11.jpeg', true, false),
   ('bebida-coca-350', 'bebidas', 'Coca Cola 350ml', 'Refrigerante Coca Cola lata.', 5.50, '/menu-images/img11.jpeg', true, false),
+  ('bebida-pepsi-350', 'bebidas', 'Pepsi 350ml', 'Refrigerante Pepsi lata.', 5.50, '/menu-images/img11.jpeg', true, false),
   ('bebida-guarana-350', 'bebidas', 'Guaraná 350ml', 'Refrigerante Guaraná lata.', 5.00, '/menu-images/img11.jpeg', true, false),
   ('bebida-fanta-uva-350', 'bebidas', 'Fanta Uva 350ml', 'Refrigerante Fanta Uva lata.', 5.00, '/menu-images/img11.jpeg', true, false),
   ('suco-manga-goiaba', 'bebidas', 'Suco de manga e goiaba 300ml', 'Adicionar leite custa R$ 2,00.', 4.50, '/menu-images/img11.jpeg', true, false),
-  ('suco-uva-caja-acerola', 'bebidas', 'Suco de uva, cajá e acerola 300ml', 'Adicionar leite custa R$ 2,00.', 5.50, '/menu-images/img11.jpeg', true, false)
+  ('suco-uva', 'bebidas', 'Suco de uva 300ml', 'Adicionar leite custa R$ 2,00.', 5.50, '/menu-images/img11.jpeg', true, false),
+  ('suco-caja', 'bebidas', 'Suco de cajá 300ml', 'Adicionar leite custa R$ 2,00.', 5.50, '/menu-images/img11.jpeg', true, false),
+  ('suco-acerola', 'bebidas', 'Suco de acerola 300ml', 'Adicionar leite custa R$ 2,00.', 5.50, '/menu-images/img11.jpeg', true, false)
 )
 insert into public.products (slug, category_id, name, description, price, image_url, active, highlight)
 select
