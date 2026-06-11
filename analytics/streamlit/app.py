@@ -43,18 +43,35 @@ st.markdown(
         padding-top: 3.25rem;
       }}
       .dashboard-title {{
-        margin-bottom: .55rem;
-        max-width: 240px;
-      }}
-      .dashboard-title img {{
-        border-radius: 999px;
-        display: block;
-        height: auto;
-        width: 100%;
+        color: {TEXT};
+        font-size: 2.1rem;
+        font-weight: 900;
+        line-height: 1.14;
+        margin: 0 0 .35rem;
+        padding-top: .25rem;
       }}
       .dashboard-subtitle {{
         color: {MUTED};
         margin-bottom: 1.25rem;
+      }}
+      .sidebar-brand {{
+        align-items: center;
+        display: flex;
+        gap: .65rem;
+        margin: .25rem 0 1.35rem;
+      }}
+      .sidebar-brand img {{
+        border-radius: 999px;
+        height: 56px;
+        object-fit: cover;
+        object-position: center;
+        width: 56px;
+      }}
+      .sidebar-brand span {{
+        color: {TEXT};
+        font-size: 1.05rem;
+        font-weight: 900;
+        line-height: 1.08;
       }}
       div[data-testid="stMetric"] {{
         background: {SURFACE};
@@ -287,13 +304,17 @@ operational = load_frame(
 
 logo_url = logo_data_url()
 if logo_url:
-    st.markdown(
-        f'<div class="dashboard-title"><img src="{logo_url}" alt="Sport Clube Lanches"></div>',
+    st.sidebar.markdown(
+        f"""
+        <div class="sidebar-brand">
+          <img src="{logo_url}" alt="Sport Clube Lanches">
+          <span>Sport Clube<br>Lanches</span>
+        </div>
+        """,
         unsafe_allow_html=True,
     )
-else:
-    st.markdown('<div class="dashboard-title">Sport Clube Lanches</div>', unsafe_allow_html=True)
 
+st.markdown('<div class="dashboard-title">Sport Clube Lanches</div>', unsafe_allow_html=True)
 st.markdown(
     '<div class="dashboard-subtitle">Painel simples para acompanhar vendas, clientes, produtos e horarios de maior movimento.</div>',
     unsafe_allow_html=True,

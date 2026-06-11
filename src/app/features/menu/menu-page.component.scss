@@ -45,9 +45,13 @@ h1 {
 }
 
 .brand-logo {
+  aspect-ratio: 1;
+  border-radius: 999px;
   display: block;
   height: auto;
-  max-width: min(360px, 72vw);
+  max-width: min(180px, 42vw);
+  object-fit: cover;
+  object-position: center;
   width: 100%;
 }
 
@@ -557,7 +561,7 @@ button {
   }
 
   .brand-logo {
-    max-width: min(300px, 78vw);
+    max-width: min(150px, 42vw);
   }
 
   .promo-grid,

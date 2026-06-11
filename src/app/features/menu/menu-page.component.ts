@@ -28,8 +28,9 @@ export class MenuPageComponent {
   readonly cart = inject(CartService);
   readonly business = businessConfig;
   readonly categories = categories;
+  readonly categoryTabs = categories.filter((category) => category.id !== 'promocoes');
   readonly paymentOptions = this.paymentService.options;
-  readonly selectedCategoryId = signal(categories[0].id);
+  readonly selectedCategoryId = signal(this.categoryTabs[0].id);
   readonly savingOrder = signal(false);
   readonly cartExpanded = signal(false);
   readonly pixQrCodeDataUrl = signal('');

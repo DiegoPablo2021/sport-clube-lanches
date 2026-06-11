@@ -38,7 +38,7 @@
   </section>
 
   <nav class="category-tabs" aria-label="Categorias do cardápio">
-    @for (category of categories; track category.id) {
+    @for (category of categoryTabs; track category.id) {
       <button
         type="button"
         [class.active]="category.id === selectedCategoryId()"
