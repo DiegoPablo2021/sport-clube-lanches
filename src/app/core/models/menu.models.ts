@@ -31,6 +31,7 @@ export interface CheckoutInfo {
   address: string;
   neighborhood: string;
   paymentMethods: PaymentMethod[];
+  paymentSplit: string;
   changeFor: string;
   notes: string;
 }

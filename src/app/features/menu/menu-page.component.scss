@@ -567,6 +567,19 @@ button {
 }
 
 @media (min-width: 861px) {
+  .menu-shell.checkout-open {
+    margin-left: clamp(20px, calc((100vw - 1610px) / 2), 180px);
+    margin-right: 470px;
+    max-width: calc(100vw - 520px);
+    transition:
+      margin 180ms ease,
+      max-width 180ms ease;
+  }
+
+  .menu-shell.checkout-open .promo-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .cart-panel.expanded {
     border-left: 1px solid var(--border);
     border-top: 0;

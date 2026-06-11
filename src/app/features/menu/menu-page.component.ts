@@ -42,6 +42,7 @@ export class MenuPageComponent {
     address: '',
     neighborhood: '',
     paymentMethods: ['Pix'],
+    paymentSplit: '',
     changeFor: '',
     notes: '',
   };
@@ -105,6 +106,10 @@ export class MenuPageComponent {
 
   hasPaymentMethod(method: PaymentMethod): boolean {
     return this.paymentService.hasMethod(this.checkout.paymentMethods, method);
+  }
+
+  hasMultiplePaymentMethods(): boolean {
+    return this.checkout.paymentMethods.length > 1;
   }
 
   onOrderTypeChange(): void {

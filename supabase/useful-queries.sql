@@ -47,6 +47,27 @@ limit 20;
 delete from public.orders
 where order_number = 1;
 
+-- Remover varios pedidos de teste pelo numero.
+-- Troque os numeros dentro do in (...) pelos pedidos que deseja apagar.
+delete from public.orders
+where order_number in (1, 2);
+
+-- Remover pedidos de teste por telefone, mantendo clientes reais.
+-- Use quando os testes foram feitos com um telefone especifico.
+delete from public.orders o
+using public.customers c
+where c.id = o.customer_id
+  and regexp_replace(c.phone, '\D', '', 'g') = '5584987245896';
+
+-- Remover clientes que ficaram sem pedido depois da limpeza de testes.
+-- Rode depois dos deletes acima, se quiser limpar tambem o cadastro do cliente teste.
+delete from public.customers c
+where not exists (
+  select 1
+  from public.orders o
+  where o.customer_id = c.id
+);
+
 -- Itens do ultimo pedido.
 select
   o.order_number,

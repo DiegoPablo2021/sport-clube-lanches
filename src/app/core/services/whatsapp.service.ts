@@ -38,6 +38,10 @@ export class WhatsappService {
       this.paymentService.hasMethod(checkout.paymentMethods, 'Pix')
         ? [`*Chave Pix:* ${businessConfig.pix.key}`, `*Titular Pix:* ${businessConfig.pix.receiverName}`]
         : [];
+    const splitInfo =
+      checkout.paymentMethods.length > 1
+        ? [`*Divisão do pagamento:* ${checkout.paymentSplit || 'Combinar na confirmação'}`]
+        : [];
     const deliveryFeeNotice = this.deliveryFeeService
       .getDeliveryFeeNotice(checkout.neighborhood)
       .replace('Taxa de entrega:', '*Taxa de entrega:*');
@@ -67,6 +71,7 @@ export class WhatsappService {
       `*Tipo de pedido:* ${checkout.orderType}`,
       ...deliveryInfo,
       `*Forma de pagamento:* ${this.paymentService.formatMethods(checkout.paymentMethods)}`,
+      ...splitInfo,
       ...pixInfo,
       ...changeInfo,
       `*Observação:* ${checkout.notes || 'Nenhuma'}`,

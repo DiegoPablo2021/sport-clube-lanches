@@ -54,7 +54,14 @@ export class OrderPersistenceService {
       change_for: this.paymentService.hasMethod(checkout.paymentMethods, 'Dinheiro')
         ? checkout.changeFor
         : null,
-      notes: checkout.notes,
+      notes: [
+        checkout.paymentMethods.length > 1
+          ? `Divisão do pagamento: ${checkout.paymentSplit || 'Combinar na confirmação'}`
+          : '',
+        checkout.notes,
+      ]
+        .filter(Boolean)
+        .join(' | '),
       items: items.map((item) => ({
         product_slug: item.product.id,
         quantity: item.quantity,

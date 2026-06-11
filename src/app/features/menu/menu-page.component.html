@@ -1,4 +1,4 @@
-<main class="menu-shell">
+<main class="menu-shell" [class.checkout-open]="cartExpanded()">
   <header class="topbar">
     <div>
       <p class="address">{{ business.address }}</p>
@@ -201,6 +201,16 @@
             name="changeFor"
             [(ngModel)]="checkout.changeFor"
             placeholder="Ex.: troco para R$ 50,00"
+          />
+        </label>
+      }
+      @if (hasMultiplePaymentMethods()) {
+        <label class="checkout-field">
+          Como vai dividir o pagamento?
+          <input
+            name="paymentSplit"
+            [(ngModel)]="checkout.paymentSplit"
+            placeholder="Ex.: R$ 50,00 no Pix e restante no débito"
           />
         </label>
       }
