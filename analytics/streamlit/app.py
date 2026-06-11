@@ -73,11 +73,26 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-supabase_url = os.getenv("SUPABASE_URL")
-supabase_key = os.getenv("SUPABASE_KEY")
+def get_secret(name: str) -> str | None:
+    value = os.getenv(name)
+
+    if value:
+        return value
+
+    try:
+        return st.secrets.get(name)
+    except Exception:
+        return None
+
+
+supabase_url = get_secret("SUPABASE_URL")
+supabase_key = get_secret("SUPABASE_KEY")
 
 if not supabase_url or not supabase_key:
-    st.warning("Configure SUPABASE_URL e SUPABASE_KEY no arquivo analytics/streamlit/.env para carregar dados reais.")
+    st.warning(
+        "Configure SUPABASE_URL e SUPABASE_KEY no arquivo analytics/streamlit/.env "
+        "ou nos Secrets do Streamlit Community Cloud para carregar dados reais."
+    )
     st.stop()
 
 client = create_client(supabase_url, supabase_key)
@@ -87,7 +102,7 @@ try:
 except Exception as exc:
     st.error(
         "Nao foi possivel conectar no Supabase. Confira SUPABASE_URL e SUPABASE_KEY em "
-        "`analytics/streamlit/.env` e reinicie o Streamlit."
+        "`analytics/streamlit/.env` ou nos Secrets do Streamlit Community Cloud."
     )
     st.code(str(exc), language="text")
     st.stop()

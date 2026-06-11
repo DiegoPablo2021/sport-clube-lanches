@@ -32,6 +32,12 @@ Repositorio:
 https://github.com/DiegoPablo2021/sport-clube-lanches
 ```
 
+Dashboard Streamlit:
+
+```text
+A publicar no Streamlit Community Cloud.
+```
+
 ## Funcionalidades
 
 - Cardapio digital responsivo.
@@ -225,6 +231,26 @@ SUPABASE_KEY=SUA_CHAVE_PUBLISHABLE_OU_SECRET
 
 O arquivo `.env.example` e apenas modelo. A chave real deve ficar em `.env`, que nao deve ser versionado.
 
+### Publicar no Streamlit Community Cloud
+
+O app ja esta preparado para deploy no Streamlit Community Cloud. Segundo a documentacao oficial do Streamlit, a publicacao e feita conectando o GitHub, escolhendo repositorio, branch e arquivo principal.
+
+Configuracao recomendada:
+
+- Repository: `DiegoPablo2021/sport-clube-lanches`
+- Branch: `main`
+- Main file path: `analytics/streamlit/app.py`
+- Python version: `3.12`
+
+Em `Advanced settings > Secrets`, cadastrar:
+
+```toml
+SUPABASE_URL = "https://SEU-PROJETO.supabase.co"
+SUPABASE_KEY = "SUA_CHAVE_PUBLISHABLE_OU_SECRET"
+```
+
+Depois de publicado, qualquer `git push` na branch `main` atualiza o app automaticamente.
+
 KPIs principais:
 
 - Pedidos.
@@ -317,6 +343,35 @@ Configuracao em:
 src/app/core/config/business.config.ts
 ```
 
+## WhatsApp Business
+
+O link do cardapio ja esta publicado e pode ser usado na mensagem automatica de saudacao do WhatsApp Business:
+
+```text
+https://delivery-web-menu.vercel.app
+```
+
+Mensagem sugerida:
+
+```text
+Ola! Seja bem-vindo ao Sport Clube Lanches.
+
+Para fazer seu pedido, acesse nosso cardapio digital:
+https://delivery-web-menu.vercel.app
+
+Depois de montar o pedido, clique em "Enviar pedido no WhatsApp" que ele chega prontinho para confirmacao.
+```
+
+Configuracao no celular:
+
+1. Abrir o app WhatsApp Business.
+2. Ir em `Ferramentas comerciais`.
+3. Entrar em `Mensagem de saudacao`.
+4. Ativar `Enviar mensagem de saudacao`.
+5. Colar a mensagem sugerida.
+6. Em destinatarios, escolher `Todos` ou `Todos que nao estao na agenda`.
+7. Salvar.
+
 ## Deploy
 
 O deploy e automatico pela Vercel a cada push na branch `main`.
@@ -361,10 +416,11 @@ Arquivos complementares mantidos no repositorio:
 ## Status
 
 - Cardapio publicado.
+- Saudacao do WhatsApp Business definida para configuracao no celular.
 - QR Code Pix implementado.
 - Supabase estruturado.
 - SQL unico de aplicacao criado.
-- Streamlit funcionando via API do Supabase.
+- Streamlit funcionando via API do Supabase e preparado para Community Cloud.
 - Agente local de impressao criado.
 - Power BI preparado, aguardando ajuste de conexao/driver.
 
@@ -377,3 +433,5 @@ Desenvolvido por:
 - GitHub: [DiegoPablo2021](https://github.com/DiegoPablo2021)
 - Email: [diegopmenezes@hotmail.com](mailto:diegopmenezes@hotmail.com)
 - Projeto: [Sport Clube Lanches](https://delivery-web-menu.vercel.app)
+- LinkedIn: [diego-pablo](https://www.linkedin.com/in/diego-pablo/)
+- Portfolio: [diego-pablo.vercel.app](https://diego-pablo.vercel.app/)
