@@ -6,6 +6,10 @@ alter table public.orders
 add column if not exists payment_fee_amount numeric(10, 2) not null default 0 check (payment_fee_amount >= 0);
 
 -- Atualiza a base operacional para expor subtotal, taxas e total final.
+-- A view e removida antes porque o Postgres nao permite mudar a ordem das colunas
+-- com create or replace view quando a view ja existe.
+drop view if exists public.vw_orders_base;
+
 create or replace view public.vw_orders_base as
 select
   o.id,

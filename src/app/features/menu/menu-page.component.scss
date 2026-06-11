@@ -274,8 +274,8 @@ button {
 }
 
 .cart-actions {
-  display: flex;
-  justify-content: flex-end;
+  display: grid;
+  margin-top: 10px;
 }
 
 .ghost-button {
@@ -284,8 +284,9 @@ button {
   border-radius: 8px;
   color: var(--text);
   font-weight: 800;
-  min-height: 38px;
-  padding: 9px 12px;
+  min-height: 44px;
+  padding: 13px 16px;
+  width: 100%;
 }
 
 .cart-items,
