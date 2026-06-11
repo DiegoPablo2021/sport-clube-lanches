@@ -4,11 +4,7 @@
 
 Leandro tera uma impressora de pedidos USB/Bluetooth para receber as comandas da cozinha.
 
-Arquivo de referencia:
-
-```text
-docs/references/printer/impressora-pedidos-usb-bluetooth.mp4
-```
+O video recebido foi usado apenas como referencia visual do equipamento e nao precisa ficar versionado no projeto.
 
 ## Decisao arquitetural
 
@@ -36,6 +32,19 @@ Cliente faz pedido
   -> agente marca evento "order.printed"
 ```
 
+## Como funcionaria na pratica
+
+1. O cliente monta o pedido no cardapio.
+2. O site salva o pedido no Supabase.
+3. Kardiele/Ryan recebem a mensagem pronta no WhatsApp e confirmam com o cliente.
+4. Quando o pedido estiver confirmado ou pago, o status muda para `paid` ou `in_preparation`.
+5. Um pequeno programa local, rodando no computador ou celular que fica perto da impressora, consulta novos pedidos.
+6. Quando encontra pedido novo, esse programa monta uma comanda em texto curto.
+7. A comanda e enviada para a impressora por USB ou Bluetooth.
+8. O sistema registra um evento `order.printed`, evitando imprimir o mesmo pedido varias vezes.
+
+Na primeira versao, esse agente pode funcionar por consulta a cada 5 ou 10 segundos. Depois, pode evoluir para Supabase Realtime.
+
 ## Opcoes tecnicas
 
 ### Opcao A - Agente local em Windows
@@ -60,6 +69,8 @@ Riscos:
 - Precisa manter o computador ligado.
 - Precisa configurar driver/porta da impressora.
 
+Este e o caminho mais indicado se a cozinha tiver um notebook ou computador simples ligado por USB.
+
 ### Opcao B - App Android/local via Bluetooth
 
 Indicada se a impressora ficar pareada com celular.
@@ -82,6 +93,8 @@ Enquanto a Fase 3 nao estiver pronta:
 - Kardiele/Ryan recebem o pedido no WhatsApp.
 - Confirmam pagamento.
 - Imprimem pelo aplicativo da impressora ou passam verbalmente para Leandro.
+
+Esse fluxo temporario continua valido enquanto a automacao de impressao nao estiver pronta.
 
 ## Modelo de comanda
 

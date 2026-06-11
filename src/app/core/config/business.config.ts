@@ -6,4 +6,10 @@ export const businessConfig = {
   instagram: '@esportclubelanches',
   openingHoursNotice: 'Funcionamento: confirme disponibilidade pelo WhatsApp.',
   freeDeliveryNeighborhoods: ['Sport Clube 3', 'Sport Clube 4'],
+  pix: {
+    key: '00862c99-532b-452f-96c7-795f02829754',
+    receiverName: 'Aline Kardiele Araujo do Nascimento',
+    city: 'Natal',
+    txidPrefix: 'SPORTCLUBE',
+  },
 };

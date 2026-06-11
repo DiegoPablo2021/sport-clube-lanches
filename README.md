@@ -40,6 +40,7 @@ https://github.com/DiegoPablo2021/sport-clube-lanches
 - Retirada no local com endereco da lanchonete.
 - Taxa de entrega: gratis para Sport Clube 3/4; demais localidades consultar taxa.
 - Forma de pagamento: a combinar, Pix, cartao na entrega ou dinheiro.
+- QR Code e Pix copia-e-cola quando pagamento for Pix.
 - Campo de troco quando pagamento for dinheiro.
 - Observacao livre do pedido.
 - Geracao de mensagem pronta para WhatsApp.
@@ -243,7 +244,6 @@ A impressora USB/Bluetooth foi documentada como uma fase tecnica propria.
 Referencia:
 
 - `docs/IMPRESSORA-PEDIDOS.md`
-- `docs/references/printer/impressora-pedidos-usb-bluetooth.mp4`
 
 ## Documentacao
 

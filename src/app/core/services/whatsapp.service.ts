@@ -24,6 +24,10 @@ export class WhatsappService {
       checkout.paymentMethod === 'Dinheiro'
         ? [`Troco para: ${checkout.changeFor || 'Nao informado'}`]
         : [];
+    const pixInfo =
+      checkout.paymentMethod === 'Pix'
+        ? [`Chave Pix: ${businessConfig.pix.key}`, `Titular Pix: ${businessConfig.pix.receiverName}`]
+        : [];
 
     const deliveryInfo =
       checkout.orderType === 'Entrega'
@@ -47,6 +51,7 @@ export class WhatsappService {
       `Tipo de pedido: ${checkout.orderType}`,
       ...deliveryInfo,
       `Forma de pagamento: ${checkout.paymentMethod || 'A combinar'}`,
+      ...pixInfo,
       ...changeInfo,
       `Observacao: ${checkout.notes || 'Nenhuma'}`,
     ].join('\n');

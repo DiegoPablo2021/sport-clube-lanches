@@ -339,6 +339,65 @@ button {
   padding: 10px;
 }
 
+.pix-payment {
+  background: #151515;
+  border: 1px solid rgba(54, 241, 106, 0.28);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  grid-column: span 2;
+  grid-template-columns: 128px 1fr;
+  padding: 12px;
+}
+
+.pix-payment div {
+  grid-column: 1 / -1;
+}
+
+.pix-payment span {
+  color: var(--green);
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.pix-payment strong {
+  color: var(--text);
+  display: block;
+  font-size: 0.95rem;
+  margin-top: 2px;
+}
+
+.pix-payment img {
+  background: #fff;
+  border-radius: 8px;
+  height: 128px;
+  padding: 8px;
+  width: 128px;
+}
+
+.pix-payment textarea {
+  min-height: 128px;
+  resize: vertical;
+}
+
+.pix-payment button {
+  background: var(--yellow);
+  border-radius: 8px;
+  color: #17130a;
+  font-weight: 900;
+  grid-column: 1 / -1;
+  min-height: 40px;
+}
+
+.pix-payment p {
+  color: var(--green);
+  font-size: 0.84rem;
+  font-weight: 800;
+  grid-column: 1 / -1;
+}
+
 @media (max-width: 860px) {
   .topbar {
     align-items: flex-start;
@@ -348,8 +407,13 @@ button {
   .promo-grid,
   .product-list,
   .cart-items,
-  .checkout-form {
+  .checkout-form,
+  .pix-payment {
     grid-template-columns: 1fr;
+  }
+
+  .pix-payment {
+    grid-column: auto;
   }
 
   .promo-card {

@@ -30,7 +30,7 @@
             <p>{{ product.tags?.[0] || 'Oferta da casa' }}</p>
             <h3>{{ product.name }}</h3>
             <strong>{{ product.price | brlCurrency }}</strong>
-            <button type="button" (click)="cart.add(product)">Adicionar</button>
+            <button type="button" (click)="addProduct(product)">Adicionar</button>
           </div>
         </article>
       }
@@ -70,7 +70,7 @@
           <button
             type="button"
             class="add-button"
-            (click)="cart.add(product)"
+            (click)="addProduct(product)"
             [attr.aria-label]="'Adicionar ' + product.name"
           >
             +
@@ -105,8 +105,8 @@
         <div class="cart-item">
           <span>{{ item.quantity }}x {{ item.product.name }}</span>
           <div>
-            <button type="button" (click)="cart.decrease(item.product.id)">-</button>
-            <button type="button" (click)="cart.add(item.product)">+</button>
+            <button type="button" (click)="decreaseProduct(item.product.id)">-</button>
+            <button type="button" (click)="addProduct(item.product)">+</button>
           </div>
         </div>
       }
@@ -175,6 +175,20 @@
             placeholder="Ex.: troco para R$ 50,00"
           />
         </label>
+      }
+      @if (checkout.paymentMethod === 'Pix' && pixQrCodeDataUrl()) {
+        <section class="pix-payment" aria-label="Pagamento via Pix">
+          <div>
+            <span>Pix copia e cola</span>
+            <strong>{{ business.pix.receiverName }}</strong>
+          </div>
+          <img [src]="pixQrCodeDataUrl()" alt="QR Code para pagamento via Pix" />
+          <textarea readonly rows="3">{{ pixCopyPaste() }}</textarea>
+          <button type="button" (click)="copyPixPayload()">Copiar codigo Pix</button>
+          @if (pixCopyStatus()) {
+            <p>{{ pixCopyStatus() }}</p>
+          }
+        </section>
       }
       <label>
         Observacao
