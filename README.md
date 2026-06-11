@@ -135,8 +135,10 @@ Migrations:
 - `supabase/migrations/0002_analytics_views.sql`
 - `supabase/migrations/0003_public_order_rpc.sql`
 - `supabase/migrations/0004_printing_rpc.sql`
+- `supabase/migrations/0005_advanced_kpi_views.sql`
 - `supabase/seed.sql`
 - `supabase/apply-all.sql`
+- `supabase/useful-queries.sql`
 
 Tabelas principais:
 
@@ -196,6 +198,12 @@ Views analiticas:
 - `vw_customer_recurrence`
 - `vw_customer_promotion_candidates`
 - `vw_customer_favorite_products`
+- `vw_product_daily_sales`
+- `vw_hour_weekday_heatmap`
+- `vw_basket_summary`
+- `vw_product_pair_sales`
+- `vw_customer_lifecycle`
+- `vw_daily_operational_summary`
 - `vw_order_status_summary`
 - `vw_kpi_snapshot`
 
@@ -206,6 +214,8 @@ Dashboard inicial:
 ```text
 analytics/streamlit/app.py
 ```
+
+O app usa tema dark alinhado ao cardapio e cobre KPIs operacionais, produtos, clientes, bairros, horarios e sugestoes de promocao.
 
 Como rodar:
 
