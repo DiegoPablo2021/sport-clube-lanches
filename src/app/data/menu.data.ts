@@ -63,9 +63,9 @@ export const products: Product[] = [
     categoryId: 'promocoes',
     name: 'Combo Completo',
     description:
-      '3 hamburgueres Suecia, 2 pasteis Brasil, porcao de batata com cheddar e refrigerante 1 litro.',
-    price: 52.99,
-    imageUrl: '/menu-images/img02.jpeg',
+      '3 hot dogao Andorra, 2 hamburgueres Suecia, porcao de batata com cheddar e refrigerante 1 litro.',
+    price: 59.99,
+    imageUrl: '/menu-images/combo-completo-semana.jpeg',
     active: true,
     highlight: true,
     tags: ['Combo da semana'],
