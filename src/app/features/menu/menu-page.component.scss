@@ -44,6 +44,13 @@ h1 {
   max-width: 760px;
 }
 
+.brand-logo {
+  display: block;
+  height: auto;
+  max-width: min(360px, 72vw);
+  width: 100%;
+}
+
 .whatsapp-link,
 .send-order,
 button {
@@ -271,6 +278,19 @@ button {
 .cart-details {
   margin: 12px auto 0;
   max-width: 1180px;
+}
+
+.cart-empty-state {
+  color: var(--text);
+  display: grid;
+  gap: 12px;
+  margin: 14px auto 0;
+  max-width: 1180px;
+}
+
+.cart-empty-state p {
+  color: var(--muted);
+  font-weight: 700;
 }
 
 .cart-actions {
@@ -536,6 +556,10 @@ button {
     flex-direction: column;
   }
 
+  .brand-logo {
+    max-width: min(300px, 78vw);
+  }
+
   .promo-grid,
   .product-list,
   .cart-items,
@@ -577,16 +601,43 @@ button {
 
 @media (min-width: 861px) {
   .menu-shell.checkout-open {
-    margin-left: clamp(20px, calc((100vw - 1610px) / 2), 180px);
-    margin-right: 470px;
-    max-width: calc(100vw - 520px);
+    margin-left: clamp(16px, calc((100vw - 1740px) / 2), 120px);
+    margin-right: 420px;
+    max-width: calc(100vw - 460px);
     transition:
       margin 180ms ease,
       max-width 180ms ease;
   }
 
   .menu-shell.checkout-open .promo-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    grid-template-columns: repeat(4, minmax(150px, 1fr));
+  }
+
+  .menu-shell.checkout-open .promo-card {
+    min-height: 0;
+  }
+
+  .menu-shell.checkout-open .promo-card img {
+    aspect-ratio: 1 / 0.72;
+  }
+
+  .menu-shell.checkout-open .promo-card div {
+    padding: 10px 12px 12px;
+  }
+
+  .menu-shell.checkout-open .promo-card h3 {
+    font-size: 0.96rem;
+  }
+
+  .menu-shell.checkout-open .promo-card strong {
+    font-size: 1rem;
+    margin-top: 6px;
+  }
+
+  .menu-shell.checkout-open .promo-card button {
+    margin-top: 10px;
+    padding: 9px 10px;
   }
 
   .cart-panel.expanded {
@@ -598,7 +649,7 @@ button {
     overflow-y: auto;
     right: 0;
     top: 0;
-    width: min(430px, 100vw);
+    width: min(390px, 100vw);
   }
 
   .cart-panel.expanded .cart-summary {

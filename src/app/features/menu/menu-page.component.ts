@@ -63,6 +63,10 @@ export class MenuPageComponent {
     categories.find((category) => category.id === this.selectedCategoryId()),
   );
 
+  readonly shouldShowProductSection = computed(
+    () => this.selectedCategoryId() !== 'promocoes',
+  );
+
   selectCategory(categoryId: string): void {
     this.selectedCategoryId.set(categoryId);
   }
@@ -169,6 +173,10 @@ export class MenuPageComponent {
   }
 
   getOrderTotalAmount(): number {
+    if (this.cart.totalItems() === 0) {
+      return 0;
+    }
+
     return this.cart.totalAmount() + this.getDeliveryFeeAmount() + this.getPaymentFeeAmount();
   }
 
@@ -205,7 +213,7 @@ export class MenuPageComponent {
     }
 
     await navigator.clipboard.writeText(this.pixCopyPaste());
-    this.pixCopyStatus.set('Codigo Pix copiado.');
+    this.pixCopyStatus.set('Código Pix copiado.');
     window.setTimeout(() => this.pixCopyStatus.set(''), 2500);
   }
 

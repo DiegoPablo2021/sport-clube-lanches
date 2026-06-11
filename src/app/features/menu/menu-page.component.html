@@ -2,7 +2,7 @@
   <header class="topbar">
     <div>
       <p class="address">{{ business.address }}</p>
-      <h1>{{ business.name }}</h1>
+      <img class="brand-logo" src="/Logo-Marca.jpeg" [alt]="business.name" />
       <p class="business-notice">{{ business.openingHoursNotice }}</p>
     </div>
     <a
@@ -18,7 +18,7 @@
 
   <section class="promo-section" aria-labelledby="promo-title">
     <div class="section-heading">
-      <h2 id="promo-title">Promocoes</h2>
+      <h2 id="promo-title">Promoções</h2>
       <span>Combos em destaque</span>
     </div>
 
@@ -37,7 +37,7 @@
     </div>
   </section>
 
-  <nav class="category-tabs" aria-label="Categorias do cardapio">
+  <nav class="category-tabs" aria-label="Categorias do cardápio">
     @for (category of categories; track category.id) {
       <button
         type="button"
@@ -49,6 +49,7 @@
     }
   </nav>
 
+  @if (shouldShowProductSection()) {
   <section class="product-section" aria-labelledby="products-title">
     <div class="section-heading">
       <div>
@@ -79,6 +80,7 @@
       }
     </div>
   </section>
+  }
 </main>
 
 <aside class="cart-panel" [class.expanded]="cartExpanded()" aria-label="Resumo do pedido">
@@ -95,7 +97,7 @@
       (click)="openCheckout()"
       aria-label="Abrir fechamento do pedido"
     >
-      Finalizar pedido
+      Revisar pedido
     </button>
   </div>
 
@@ -235,7 +237,7 @@
           </div>
           <img [src]="pixQrCodeDataUrl()" alt="QR Code para pagamento via Pix" />
           <textarea readonly rows="3">{{ pixCopyPaste() }}</textarea>
-          <button type="button" (click)="copyPixPayload()">Copiar codigo Pix</button>
+          <button type="button" (click)="copyPixPayload()">Copiar código Pix</button>
           @if (pixCopyStatus()) {
             <p>{{ pixCopyStatus() }}</p>
           }
@@ -257,6 +259,15 @@
         (click)="sendOrderToWhatsapp()"
       >
         {{ savingOrder() ? 'Registrando pedido...' : 'Enviar pedido no WhatsApp' }}
+      </button>
+    </div>
+  }
+
+  @if (cart.items().length === 0 && cartExpanded()) {
+    <div class="cart-empty-state">
+      <p>Seu pedido está vazio.</p>
+      <button type="button" class="ghost-button" (click)="closeCheckout()">
+        Voltar ao cardápio
       </button>
     </div>
   }

@@ -54,7 +54,7 @@ from public.create_public_order(
 
 
 -- ============================================================
--- Query: 04 - Listar ultimos pedidos
+-- Query: 04 - Operacao - Listar ultimos pedidos
 -- O que faz: lista os pedidos mais recentes com cliente, status e valores.
 -- Como usar: rode antes de apagar testes para descobrir o order_number correto.
 -- ============================================================
@@ -65,7 +65,29 @@ limit 20;
 
 
 -- ============================================================
--- Query: 05 - Ver itens de um pedido
+-- Query: 05 - Operacao - Ver pedidos abertos
+-- O que faz: lista pedidos que ainda estao em aberto ou preparo.
+-- Como usar: boa para acompanhar a fila antes da impressora/tela da cozinha.
+-- ============================================================
+select *
+from public.vw_orders_base
+where order_status in ('new', 'awaiting_confirmation', 'awaiting_payment', 'paid', 'in_preparation', 'ready', 'out_for_delivery')
+order by created_at asc;
+
+
+-- ============================================================
+-- Query: 06 - Operacao - Pedidos de hoje
+-- O que faz: mostra todos os pedidos criados hoje, do mais recente para o mais antigo.
+-- Como usar: consulta rapida para conferir o movimento do dia.
+-- ============================================================
+select *
+from public.vw_orders_base
+where created_at::date = current_date
+order by created_at desc;
+
+
+-- ============================================================
+-- Query: 07 - Operacao - Ver itens de um pedido
 -- O que faz: mostra os itens de um pedido especifico.
 -- Como usar: troque o numero 1 pelo numero do pedido que deseja conferir.
 -- ============================================================
@@ -82,7 +104,7 @@ order by oi.created_at;
 
 
 -- ============================================================
--- Query: 06 - Ver itens do ultimo pedido
+-- Query: 08 - Operacao - Ver itens do ultimo pedido
 -- O que faz: mostra os itens do pedido mais recente.
 -- Como usar: util depois de fazer um pedido de teste pelo cardapio.
 -- ============================================================
@@ -101,9 +123,9 @@ order by oi.created_at;
 
 
 -- ============================================================
--- Query: 07 - Remover pedidos de teste por numero
+-- Query: 09 - Limpeza - Remover pedidos de teste por numero
 -- O que faz: remove pedidos especificos pelos numeros.
--- Como usar: rode a query 04, veja os order_number de teste e troque no in (...).
+-- Como usar: rode a query 04 ou 06, veja os order_number de teste e troque no in (...).
 -- Observacao: itens e eventos do pedido sao removidos automaticamente em cascata.
 -- ============================================================
 delete from public.orders
@@ -111,7 +133,7 @@ where order_number in (1, 2);
 
 
 -- ============================================================
--- Query: 08 - Remover pedidos de teste por telefone
+-- Query: 10 - Limpeza - Remover pedidos de teste por telefone
 -- O que faz: remove todos os pedidos ligados a um telefone especifico.
 -- Como usar: troque o telefone abaixo pelo telefone usado nos testes.
 -- Cuidado: use apenas com telefone de teste, nunca com cliente real.
@@ -123,9 +145,9 @@ where c.id = o.customer_id
 
 
 -- ============================================================
--- Query: 09 - Limpar clientes sem pedido
+-- Query: 11 - Limpeza - Limpar clientes sem pedido
 -- O que faz: remove clientes que ficaram sem nenhum pedido apos apagar testes.
--- Como usar: rode depois das queries 07 ou 08, se quiser limpar cadastro teste.
+-- Como usar: rode depois das queries 09 ou 10, se quiser limpar cadastro teste.
 -- ============================================================
 delete from public.customers c
 where not exists (
@@ -136,7 +158,7 @@ where not exists (
 
 
 -- ============================================================
--- Query: 10 - Pedidos pendentes para impressao
+-- Query: 12 - Impressora - Pedidos pendentes para impressao
 -- O que faz: mostra pedidos que o agente local da impressora deve imprimir.
 -- Como usar: util quando a impressora chegar para testar a fila.
 -- ============================================================
@@ -145,7 +167,7 @@ from public.get_pending_print_orders(10);
 
 
 -- ============================================================
--- Query: 11 - Liberar ultimo pedido para reimpressao
+-- Query: 13 - Impressora - Liberar ultimo pedido para reimpressao
 -- O que faz: remove o evento order.printed do ultimo pedido.
 -- Como usar: rode quando quiser testar a mesma comanda de novo na impressora.
 -- ============================================================
@@ -160,7 +182,7 @@ where event_type = 'order.printed'
 
 
 -- ============================================================
--- Query: 12 - KPI snapshot geral
+-- Query: 14 - Dashboard - KPI snapshot geral
 -- O que faz: retorna os principais numeros acumulados do negocio.
 -- Como usar: base para cards de Power BI ou conferencia rapida.
 -- ============================================================
@@ -168,7 +190,7 @@ select * from public.vw_kpi_snapshot;
 
 
 -- ============================================================
--- Query: 13 - Resumo operacional do dia
+-- Query: 15 - Dashboard - Resumo operacional do dia
 -- O que faz: mostra pedidos, receita, ticket medio e pedidos abertos do dia.
 -- Como usar: ideal para acompanhamento diario da lanchonete.
 -- ============================================================
@@ -176,7 +198,7 @@ select * from public.vw_daily_operational_summary;
 
 
 -- ============================================================
--- Query: 14 - Vendas diarias
+-- Query: 16 - Dashboard - Vendas diarias
 -- O que faz: mostra pedidos, cancelados, faturamento e ticket medio por dia.
 -- Como usar: base para grafico de faturamento diario.
 -- ============================================================
@@ -187,7 +209,7 @@ limit 30;
 
 
 -- ============================================================
--- Query: 15 - Produtos mais vendidos
+-- Query: 17 - Dashboard - Produtos mais vendidos
 -- O que faz: ranqueia produtos por quantidade vendida e faturamento.
 -- Como usar: ajuda Leandro e Kardiele a saberem o que mais sai.
 -- ============================================================
@@ -197,7 +219,17 @@ limit 20;
 
 
 -- ============================================================
--- Query: 16 - Clientes candidatos a promocao
+-- Query: 18 - Dashboard - Clientes que mais compram
+-- O que faz: mostra ranking de clientes por pedidos e faturamento.
+-- Como usar: bom para relacionamento e para descobrir clientes fieis.
+-- ============================================================
+select *
+from public.vw_customer_recurrence
+limit 30;
+
+
+-- ============================================================
+-- Query: 19 - Dashboard - Clientes candidatos a promocao
 -- O que faz: sugere clientes para brinde/cupom pelo historico recente.
 -- Como usar: base para campanhas manuais no WhatsApp.
 -- ============================================================
@@ -207,7 +239,7 @@ limit 20;
 
 
 -- ============================================================
--- Query: 17 - Ciclo de vida dos clientes
+-- Query: 20 - Dashboard - Ciclo de vida dos clientes
 -- O que faz: classifica clientes como ativo, aquecido, risco de sumir ou inativo.
 -- Como usar: ajuda em acoes de relacionamento e recuperacao.
 -- ============================================================
@@ -217,9 +249,86 @@ limit 20;
 
 
 -- ============================================================
--- Query: 18 - Horario de pico por dia da semana
+-- Query: 21 - Dashboard - Horario de pico por dia da semana
 -- O que faz: retorna pedidos por dia da semana e hora.
 -- Como usar: base para mapa de calor no Streamlit ou Power BI.
 -- ============================================================
 select *
 from public.vw_hour_weekday_heatmap;
+
+
+-- ============================================================
+-- Query: 22 - Dashboard - Bairros que mais compram
+-- O que faz: mostra pedidos, faturamento e ticket medio por bairro/localidade.
+-- Como usar: ajuda a entender onde vale divulgar e como revisar taxa de entrega.
+-- ============================================================
+select *
+from public.vw_neighborhood_sales
+limit 30;
+
+
+-- ============================================================
+-- Query: 23 - Dashboard - Formas de pagamento
+-- O que faz: resume pedidos e faturamento por forma de pagamento.
+-- Como usar: acompanha preferencia dos clientes e uso de Pix/cartao/dinheiro.
+-- ============================================================
+select *
+from public.vw_payment_methods;
+
+
+-- ============================================================
+-- Query: 24 - Financeiro - Taxas de entrega e cartao
+-- O que faz: mostra subtotal, taxa de entrega, taxa de cartao e total por pedido.
+-- Como usar: confere se o pedido gravou os valores corretamente para o BI.
+-- ============================================================
+select
+  order_number,
+  created_at,
+  customer_name,
+  neighborhood,
+  payment_method,
+  subtotal_amount,
+  delivery_fee_amount,
+  payment_fee_amount,
+  total_amount
+from public.vw_orders_base
+order by created_at desc
+limit 30;
+
+
+-- ============================================================
+-- Query: 25 - Financeiro - Receita por forma de pagamento hoje
+-- O que faz: resume pedidos e receita do dia por pagamento.
+-- Como usar: ajuda no fechamento diario de caixa.
+-- ============================================================
+select
+  payment_method,
+  count(*) as total_orders,
+  coalesce(sum(subtotal_amount), 0) as subtotal_amount,
+  coalesce(sum(delivery_fee_amount), 0) as delivery_fee_amount,
+  coalesce(sum(payment_fee_amount), 0) as payment_fee_amount,
+  coalesce(sum(total_amount), 0) as total_amount
+from public.vw_orders_base
+where created_at::date = current_date
+  and order_status <> 'cancelled'
+group by payment_method
+order by total_amount desc;
+
+
+-- ============================================================
+-- Query: 26 - Catalogo - Produtos sem imagem ou inativos
+-- O que faz: lista produtos sem imagem cadastrada ou que estao inativos.
+-- Como usar: manutencao rapida do cardapio.
+-- ============================================================
+select
+  p.slug,
+  p.name,
+  c.name as category_name,
+  p.image_url,
+  p.active
+from public.products p
+join public.categories c on c.id = p.category_id
+where p.image_url is null
+   or trim(p.image_url) = ''
+   or p.active = false
+order by c.sort_order, p.name;

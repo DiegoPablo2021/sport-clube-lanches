@@ -1,5 +1,7 @@
+import base64
 import os
 from datetime import date, datetime, timedelta
+from pathlib import Path
 
 import pandas as pd
 import plotly.express as px
@@ -17,6 +19,9 @@ BG = "#0a0a0a"
 SURFACE = "#151515"
 TEXT = "#f7f7f7"
 MUTED = "#a5a5a5"
+APP_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = APP_DIR.parents[1]
+LOGO_PATH = PROJECT_ROOT / "public" / "Logo-Marca.jpeg"
 
 st.set_page_config(
     page_title="Sport Clube Lanches - Dashboard",
@@ -38,12 +43,14 @@ st.markdown(
         padding-top: 3.25rem;
       }}
       .dashboard-title {{
-        color: {TEXT};
-        font-size: 2.4rem;
-        font-weight: 900;
-        line-height: 1.18;
-        margin: 0 0 .35rem;
-        padding-top: .25rem;
+        margin-bottom: .55rem;
+        max-width: 240px;
+      }}
+      .dashboard-title img {{
+        border-radius: 999px;
+        display: block;
+        height: auto;
+        width: 100%;
       }}
       .dashboard-subtitle {{
         color: {MUTED};
@@ -83,6 +90,14 @@ def get_secret(name: str) -> str | None:
         return st.secrets.get(name)
     except Exception:
         return None
+
+
+def logo_data_url() -> str | None:
+    if not LOGO_PATH.exists():
+        return None
+
+    encoded = base64.b64encode(LOGO_PATH.read_bytes()).decode("ascii")
+    return f"data:image/jpeg;base64,{encoded}"
 
 
 supabase_url = get_secret("SUPABASE_URL")
@@ -270,7 +285,15 @@ operational = load_frame(
     ("reference_date", "orders_today", "revenue_today", "average_ticket_today", "open_orders_today", "unique_customers_today"),
 )
 
-st.markdown('<div class="dashboard-title">Sport Clube Lanches</div>', unsafe_allow_html=True)
+logo_url = logo_data_url()
+if logo_url:
+    st.markdown(
+        f'<div class="dashboard-title"><img src="{logo_url}" alt="Sport Clube Lanches"></div>',
+        unsafe_allow_html=True,
+    )
+else:
+    st.markdown('<div class="dashboard-title">Sport Clube Lanches</div>', unsafe_allow_html=True)
+
 st.markdown(
     '<div class="dashboard-subtitle">Painel simples para acompanhar vendas, clientes, produtos e horarios de maior movimento.</div>',
     unsafe_allow_html=True,
