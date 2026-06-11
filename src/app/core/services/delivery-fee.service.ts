@@ -12,7 +12,7 @@ export class DeliveryFeeService {
     if (this.isFreeDeliveryNeighborhood(neighborhood)) {
       return {
         amount: 0,
-        label: 'Taxa de entrega: gratis para Sport Clube 3/4.',
+        label: 'Taxa de entrega: grátis para Sport Clube 3/4.',
       };
     }
 
@@ -24,7 +24,7 @@ export class DeliveryFeeService {
 
   getDeliveryFeeNotice(neighborhood: string): string {
     if (!neighborhood.trim()) {
-      return 'Taxa de entrega: gratis para Sport Clube 3/4; demais localidades consultar taxa.';
+      return 'Taxa de entrega: grátis para Sport Clube 3/4; demais localidades consultar taxa.';
     }
 
     return this.getDeliveryFee(neighborhood).label;

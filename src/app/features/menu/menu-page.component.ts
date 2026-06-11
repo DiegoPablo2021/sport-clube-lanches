@@ -92,7 +92,6 @@ export class MenuPageComponent {
     }
 
     this.savingOrder.set(true);
-    const whatsappWindow = window.open('about:blank', '_blank', 'noopener,noreferrer');
 
     try {
       const persistedOrder = await this.orderPersistenceService.createOrder(
@@ -113,11 +112,7 @@ export class MenuPageComponent {
             };
       const url = this.whatsappService.buildOrderUrl(this.cart.items(), checkout);
 
-      if (whatsappWindow) {
-        whatsappWindow.location.href = url;
-      } else {
-        window.location.href = url;
-      }
+      window.location.href = url;
     } finally {
       this.savingOrder.set(false);
     }

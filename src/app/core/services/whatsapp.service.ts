@@ -11,7 +11,7 @@ export class WhatsappService {
     const products = items
       .map((item) => {
         const subtotal = this.formatCurrency(item.product.price * item.quantity);
-        return `- ${item.quantity}x ${item.product.name} - ${subtotal}`;
+        return `- *${item.quantity}x ${item.product.name}* - ${subtotal}`;
       })
       .join('\n');
 
@@ -22,38 +22,41 @@ export class WhatsappService {
 
     const changeInfo =
       checkout.paymentMethod === 'Dinheiro'
-        ? [`Troco para: ${checkout.changeFor || 'Nao informado'}`]
+        ? [`*Troco para:* ${checkout.changeFor || 'Não informado'}`]
         : [];
     const pixInfo =
       checkout.paymentMethod === 'Pix'
-        ? [`Chave Pix: ${businessConfig.pix.key}`, `Titular Pix: ${businessConfig.pix.receiverName}`]
+        ? [`*Chave Pix:* ${businessConfig.pix.key}`, `*Titular Pix:* ${businessConfig.pix.receiverName}`]
         : [];
+    const deliveryFeeNotice = this.deliveryFeeService
+      .getDeliveryFeeNotice(checkout.neighborhood)
+      .replace('Taxa de entrega:', '*Taxa de entrega:*');
 
     const deliveryInfo =
       checkout.orderType === 'Entrega'
         ? [
-            `Endereco: ${checkout.address || 'A informar'}`,
-            `Bairro: ${checkout.neighborhood || 'A informar'}`,
-            this.deliveryFeeService.getDeliveryFeeNotice(checkout.neighborhood),
+            `*Endereço:* ${checkout.address || 'A informar'}`,
+            `*Bairro:* ${checkout.neighborhood || 'A informar'}`,
+            deliveryFeeNotice,
           ]
-        : [`Retirada no local: ${businessConfig.address}`];
+        : [`*Retirada no local:* ${businessConfig.address}`];
 
     return [
-      `Ola! Quero fazer um pedido no ${businessConfig.name}:`,
+      `Olá! Quero fazer um pedido no *${businessConfig.name}*:`,
       '',
-      'Itens:',
+      '*Itens:*',
       products,
       '',
-      `Total: ${this.formatCurrency(total)}`,
+      `*Total:* ${this.formatCurrency(total)}`,
       '',
-      `Nome: ${checkout.name || 'A informar'}`,
-      `Telefone: ${checkout.phone || 'A informar'}`,
-      `Tipo de pedido: ${checkout.orderType}`,
+      `*Nome:* ${checkout.name || 'A informar'}`,
+      `*Telefone:* ${checkout.phone || 'A informar'}`,
+      `*Tipo de pedido:* ${checkout.orderType}`,
       ...deliveryInfo,
-      `Forma de pagamento: ${checkout.paymentMethod || 'A combinar'}`,
+      `*Forma de pagamento:* ${this.formatPaymentMethod(checkout.paymentMethod)}`,
       ...pixInfo,
       ...changeInfo,
-      `Observacao: ${checkout.notes || 'Nenhuma'}`,
+      `*Observação:* ${checkout.notes || 'Nenhuma'}`,
     ].join('\n');
   }
 
@@ -67,5 +70,16 @@ export class WhatsappService {
       style: 'currency',
       currency: 'BRL',
     }).format(value);
+  }
+
+  private formatPaymentMethod(paymentMethod: string): string {
+    const paymentLabels: Record<string, string> = {
+      'A combinar': 'a combinar',
+      Pix: 'Pix',
+      'Cartao na entrega': 'cartão na entrega',
+      Dinheiro: 'dinheiro',
+    };
+
+    return paymentLabels[paymentMethod] || 'a combinar';
   }
 }
