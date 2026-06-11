@@ -106,7 +106,7 @@ export const products: Product[] = [
     name: 'Suecia',
     description: 'Pao, hamburguer, ovo, presunto, requeijao cheddar, alface e tomate.',
     price: 8,
-    imageUrl: '/menu-images/mais-fotos/hamburguer-suecia.png',
+    imageUrl: '/menu-images/hamburguer-suecia.png',
     active: true,
   },
   {
@@ -160,7 +160,7 @@ export const products: Product[] = [
     name: 'Italia',
     description: 'Pao baguete, frango desfiado, cebola grelhada, mussarela, alface, tomate e molho.',
     price: 12,
-    imageUrl: '/menu-images/mais-fotos/baguete-italia.png',
+    imageUrl: '/menu-images/baguete-italia.png',
     active: true,
   },
   {
@@ -196,7 +196,7 @@ export const products: Product[] = [
     name: 'Prime',
     description: 'Pao baguete, carne de sol na nata, alface e tomate.',
     price: 14,
-    imageUrl: '/menu-images/mais-fotos/baguete-prime.png',
+    imageUrl: '/menu-images/baguete-prime.png',
     active: true,
   },
   {
@@ -367,7 +367,7 @@ export const products: Product[] = [
     name: 'Camarao ao alho e oleo com fritas',
     description: 'Petisco com camarao e fritas.',
     price: 30,
-    imageUrl: '/menu-images/mais-fotos/petisco-camarao.png',
+    imageUrl: '/menu-images/petisco-camarao.png',
     active: true,
   },
   {
@@ -385,7 +385,7 @@ export const products: Product[] = [
     name: 'Carne de sol sertanejo com queijo coalho',
     description: 'Petisco de carne de sol com queijo coalho.',
     price: 30,
-    imageUrl: '/menu-images/mais-fotos/petisco-carne-sol.png',
+    imageUrl: '/menu-images/petisco-carne-sol.png',
     active: true,
   },
   {
@@ -394,7 +394,7 @@ export const products: Product[] = [
     name: 'Macaxeira 450g',
     description: 'Porcao de macaxeira.',
     price: 12,
-    imageUrl: '/menu-images/mais-fotos/porcao-macaxeira.png',
+    imageUrl: '/menu-images/porcao-macaxeira.png',
     active: true,
   },
   {
@@ -403,7 +403,7 @@ export const products: Product[] = [
     name: 'Fritas 450g',
     description: 'Porcao de batata frita.',
     price: 12,
-    imageUrl: '/menu-images/mais-fotos/porcao-fritas.png',
+    imageUrl: '/menu-images/porcao-fritas.png',
     active: true,
   },
   {
@@ -412,7 +412,7 @@ export const products: Product[] = [
     name: 'Fritas com requeijao cheddar 450g',
     description: 'Porcao de fritas com cheddar.',
     price: 15,
-    imageUrl: '/menu-images/mais-fotos/porcao-fritas-cheddar.png',
+    imageUrl: '/menu-images/porcao-fritas-cheddar.png',
     active: true,
   },
   {

@@ -91,10 +91,10 @@ delivery-web-menu/
 ├── analytics/
 │   ├── powerbi/                Apoio para modelo Power BI
 │   └── streamlit/              Dashboard operacional
-├── docs/                       Documentacao do produto e arquitetura
+├── docs/                       Referencias originais do projeto
 ├── printer-agent/              Agente local para impressao de pedidos
 ├── public/
-│   └── menu-images/            Imagens usadas no cardapio
+│   └── menu-images/            Imagens publicas usadas no cardapio
 ├── scripts/                    Geradores auxiliares
 ├── src/
 │   ├── app/
@@ -346,6 +346,18 @@ Configuracao:
 7. Leandro recebe a comanda pela rotina local de impressao.
 8. Dados alimentam Streamlit e, futuramente, Power BI.
 
+## Documentacao
+
+Este `README.md` e a documentacao principal do projeto. Ele concentra arquitetura, setup, banco, dashboard, deploy e operacao para evitar documentos paralelos desatualizados.
+
+Arquivos complementares mantidos no repositorio:
+
+- `supabase/useful-queries.sql`: consultas SQL prontas para validacao e operacao.
+- `analytics/powerbi/README.md`: apoio futuro para retomada do Power BI.
+- `analytics/powerbi/power-query.md`: exemplo de conexao via Power Query.
+- `analytics/powerbi/measures.dax`: medidas DAX sugeridas.
+- `docs/references/initial-documentation/`: documentacao original recebida no inicio do projeto.
+
 ## Status
 
 - Cardapio publicado.
@@ -362,6 +374,6 @@ Desenvolvido por:
 
 **Diego Menezes**
 
-- GitHub: `DiegoPablo2021`
-- Email: `diegopmenezes@hotmail.com`
-- Projeto: Sport Clube Lanches
+- GitHub: [DiegoPablo2021](https://github.com/DiegoPablo2021)
+- Email: [diegopmenezes@hotmail.com](mailto:diegopmenezes@hotmail.com)
+- Projeto: [Sport Clube Lanches](https://delivery-web-menu.vercel.app)
