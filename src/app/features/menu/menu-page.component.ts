@@ -43,6 +43,7 @@ export class MenuPageComponent {
     neighborhood: '',
     paymentMethods: ['Pix'],
     paymentSplit: '',
+    pixAmount: '',
     changeFor: '',
     notes: '',
   };
@@ -171,6 +172,17 @@ export class MenuPageComponent {
     return this.cart.totalAmount() + this.getDeliveryFeeAmount() + this.getPaymentFeeAmount();
   }
 
+  getPixChargeAmount(): number {
+    if (!this.hasMultiplePaymentMethods()) {
+      return this.getOrderTotalAmount();
+    }
+
+    const parsedAmount = this.parseMoney(this.checkout.pixAmount);
+    return parsedAmount > 0
+      ? Math.min(parsedAmount, this.getOrderTotalAmount())
+      : this.getOrderTotalAmount();
+  }
+
   canSendOrder(): boolean {
     return (
       this.cart.totalItems() > 0 &&
@@ -204,10 +216,10 @@ export class MenuPageComponent {
       return;
     }
 
-    const payload = this.pixService.generatePayload(this.getOrderTotalAmount());
+    const payload = this.pixService.generatePayload(this.getPixChargeAmount());
     this.pixCopyPaste.set(payload);
     this.pixQrCodeDataUrl.set(
-      await this.pixService.generateQrCodeDataUrl(this.getOrderTotalAmount()),
+      await this.pixService.generateQrCodeDataUrl(this.getPixChargeAmount()),
     );
   }
 
@@ -216,6 +228,12 @@ export class MenuPageComponent {
       style: 'currency',
       currency: 'BRL',
     }).format(value);
+  }
+
+  private parseMoney(value: string): number {
+    const normalized = value.replace(/\./g, '').replace(',', '.').replace(/[^\d.]/g, '');
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) ? parsed : 0;
   }
 
   trackById(_: number, item: { id: string }): string {

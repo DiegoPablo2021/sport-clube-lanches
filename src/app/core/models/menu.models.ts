@@ -32,6 +32,7 @@ export interface CheckoutInfo {
   neighborhood: string;
   paymentMethods: PaymentMethod[];
   paymentSplit: string;
+  pixAmount: string;
   changeFor: string;
   notes: string;
 }

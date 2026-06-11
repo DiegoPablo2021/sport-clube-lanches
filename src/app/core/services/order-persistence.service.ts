@@ -58,6 +58,9 @@ export class OrderPersistenceService {
         checkout.paymentMethods.length > 1
           ? `Divisão do pagamento: ${checkout.paymentSplit || 'Combinar na confirmação'}`
           : '',
+        checkout.paymentMethods.length > 1 && this.paymentService.hasMethod(checkout.paymentMethods, 'Pix')
+          ? `Valor no Pix: ${checkout.pixAmount || 'Combinar na confirmação'}`
+          : '',
         checkout.notes,
       ]
         .filter(Boolean)

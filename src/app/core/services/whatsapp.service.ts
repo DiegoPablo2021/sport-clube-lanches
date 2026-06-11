@@ -36,7 +36,13 @@ export class WhatsappService {
         : [];
     const pixInfo =
       this.paymentService.hasMethod(checkout.paymentMethods, 'Pix')
-        ? [`*Chave Pix:* ${businessConfig.pix.key}`, `*Titular Pix:* ${businessConfig.pix.receiverName}`]
+        ? [
+            checkout.paymentMethods.length > 1
+              ? `*Valor no Pix:* ${checkout.pixAmount || 'Combinar na confirmação'}`
+              : '',
+            `*Chave Pix:* ${businessConfig.pix.key}`,
+            `*Titular Pix:* ${businessConfig.pix.receiverName}`,
+          ].filter(Boolean)
         : [];
     const splitInfo =
       checkout.paymentMethods.length > 1

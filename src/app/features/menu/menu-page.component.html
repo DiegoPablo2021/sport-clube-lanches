@@ -214,11 +214,24 @@
           />
         </label>
       }
+      @if (hasMultiplePaymentMethods() && hasPaymentMethod('Pix')) {
+        <label class="checkout-field">
+          Valor no Pix
+          <input
+            name="pixAmount"
+            [(ngModel)]="checkout.pixAmount"
+            (ngModelChange)="refreshPixPayment()"
+            inputmode="decimal"
+            placeholder="Ex.: 50,00"
+          />
+        </label>
+      }
       @if (hasPaymentMethod('Pix') && pixQrCodeDataUrl()) {
         <section class="pix-payment" aria-label="Pagamento via Pix">
           <div>
             <span>Pix copia e cola</span>
             <strong>{{ business.pix.receiverName }}</strong>
+            <small>QR Code gerado para {{ getPixChargeAmount() | brlCurrency }}.</small>
           </div>
           <img [src]="pixQrCodeDataUrl()" alt="QR Code para pagamento via Pix" />
           <textarea readonly rows="3">{{ pixCopyPaste() }}</textarea>
