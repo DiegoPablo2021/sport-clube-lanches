@@ -8,6 +8,7 @@
 
 # Node
 /node_modules
+printer-agent/node_modules/
 npm-debug.log
 yarn-error.log
 
@@ -15,6 +16,8 @@ yarn-error.log
 .venv/
 analytics/streamlit/.env
 analytics/streamlit/.streamlit/secrets.toml
+printer-agent/.env
+printer-agent/out/
 __pycache__/
 *.pyc
 

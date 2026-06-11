@@ -76,6 +76,7 @@ Dados e BI:
 ├── docs/                       Documentacao, arquitetura e operacao
 ├── public/
 │   └── menu-images/            Imagens usadas pela aplicacao
+├── printer-agent/              Agente local para imprimir comandas
 ├── src/
 │   └── app/
 │       ├── core/               Configuracoes, modelos e servicos
@@ -84,7 +85,8 @@ Dados e BI:
 │       └── shared/             Utilitarios reutilizaveis
 ├── supabase/
 │   ├── migrations/             Schema, funcoes e views analiticas
-│   └── seed.sql                Seed minimo de validacao
+│   ├── apply-all.sql           SQL unico para colar no Supabase
+│   └── seed.sql                Seed completo do cardapio
 └── vercel.json                 Configuracao de deploy
 ```
 
@@ -132,7 +134,9 @@ Migrations:
 - `supabase/migrations/0001_core_schema.sql`
 - `supabase/migrations/0002_analytics_views.sql`
 - `supabase/migrations/0003_public_order_rpc.sql`
+- `supabase/migrations/0004_printing_rpc.sql`
 - `supabase/seed.sql`
+- `supabase/apply-all.sql`
 
 Tabelas principais:
 
@@ -239,11 +243,7 @@ Materiais de apoio:
 
 ## Impressora de pedidos
 
-A impressora USB/Bluetooth foi documentada como uma fase tecnica propria.
-
-Referencia:
-
-- `docs/IMPRESSORA-PEDIDOS.md`
+O projeto inclui um agente local em `printer-agent/` para consultar pedidos no Supabase e imprimir comandas na cozinha.
 
 ## Documentacao
 
@@ -251,10 +251,8 @@ Referencia:
 - Arquitetura: `docs/ARQUITETURA-E-PLANO-DO-PROJETO.md`
 - Fase 1: `docs/FASE-1-CARDAPIO-DIGITAL.md`
 - Fase 2: `docs/FASE-2-BACKEND-PERSISTENCIA.md`
-- Supabase: `docs/SUPABASE-SETUP.md`
 - WhatsApp Business: `docs/WHATSAPP-BUSINESS.md`
 - Observabilidade e KPIs: `docs/OBSERVABILIDADE-KPIS.md`
-- Impressora de pedidos: `docs/IMPRESSORA-PEDIDOS.md`
 
 ## Status atual
 
@@ -262,6 +260,8 @@ Referencia:
 - GitHub conectado a Vercel.
 - Base Supabase versionada em SQL.
 - Frontend preparado para persistencia opcional no Supabase.
+- SQL unico `supabase/apply-all.sql` preparado para execucao no Supabase.
+- Agente local de impressao criado em `printer-agent/`.
 - Streamlit inicial criado.
 - Views de BI preparadas.
 - Power BI Desktop documentado.

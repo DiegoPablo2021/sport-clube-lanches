@@ -8,7 +8,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:ci": "ng test --watch=false",
-    "seed:supabase": "node scripts/generate-supabase-seed.cjs"
+    "seed:supabase": "node scripts/generate-supabase-seed.cjs",
+    "sql:supabase": "npm run seed:supabase && node scripts/generate-supabase-apply-all.cjs"
   },
   "private": true,
   "packageManager": "npm@11.5.1",

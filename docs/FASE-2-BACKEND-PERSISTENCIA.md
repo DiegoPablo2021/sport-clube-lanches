@@ -155,11 +155,7 @@ O Power BI deve consumir os dados do Supabase, preferencialmente por views anali
 
 ## Relacao com impressao de pedidos
 
-A impressora USB/Bluetooth entra melhor na Fase 3, consumindo os pedidos ja salvos no Supabase.
-
-Referencia:
-
-- `docs/IMPRESSORA-PEDIDOS.md`
+A impressora USB/Bluetooth entra melhor na Fase 3, consumindo os pedidos ja salvos no Supabase por meio do agente local em `printer-agent/`.
 
 ## Criterios de pronto
 
