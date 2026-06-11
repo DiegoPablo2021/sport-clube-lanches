@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CheckoutInfo, Product } from '../../core/models/menu.models';
+import { CheckoutInfo, PaymentMethod, Product } from '../../core/models/menu.models';
 import { businessConfig } from '../../core/config/business.config';
 import { CartService } from '../../core/services/cart.service';
 import { DeliveryFeeService } from '../../core/services/delivery-fee.service';
 import { OrderPersistenceService } from '../../core/services/order-persistence.service';
+import { PaymentService } from '../../core/services/payment.service';
 import { PixService } from '../../core/services/pix.service';
 import { WhatsappService } from '../../core/services/whatsapp.service';
 import { categories, products } from '../../data/menu.data';
@@ -22,12 +23,15 @@ export class MenuPageComponent {
   private readonly whatsappService = inject(WhatsappService);
   private readonly deliveryFeeService = inject(DeliveryFeeService);
   private readonly orderPersistenceService = inject(OrderPersistenceService);
+  private readonly paymentService = inject(PaymentService);
   private readonly pixService = inject(PixService);
   readonly cart = inject(CartService);
   readonly business = businessConfig;
   readonly categories = categories;
+  readonly paymentOptions = this.paymentService.options;
   readonly selectedCategoryId = signal(categories[0].id);
   readonly savingOrder = signal(false);
+  readonly cartExpanded = signal(false);
   readonly pixQrCodeDataUrl = signal('');
   readonly pixCopyPaste = signal('');
   readonly pixCopyStatus = signal('');
@@ -37,7 +41,7 @@ export class MenuPageComponent {
     orderType: 'Entrega',
     address: '',
     neighborhood: '',
-    paymentMethod: '',
+    paymentMethods: ['Pix'],
     changeFor: '',
     notes: '',
   };
@@ -71,12 +75,36 @@ export class MenuPageComponent {
     void this.refreshPixPayment();
   }
 
-  onPaymentMethodChange(): void {
-    if (this.checkout.paymentMethod !== 'Dinheiro') {
+  openCheckout(): void {
+    if (this.cart.totalItems() > 0) {
+      this.cartExpanded.set(true);
+    }
+  }
+
+  closeCheckout(): void {
+    this.cartExpanded.set(false);
+  }
+
+  togglePaymentMethod(method: PaymentMethod, checked: boolean): void {
+    if (checked && !this.checkout.paymentMethods.includes(method)) {
+      this.checkout.paymentMethods = [...this.checkout.paymentMethods, method];
+    }
+
+    if (!checked) {
+      this.checkout.paymentMethods = this.checkout.paymentMethods.filter(
+        (paymentMethod) => paymentMethod !== method,
+      );
+    }
+
+    if (!this.hasPaymentMethod('Dinheiro')) {
       this.checkout.changeFor = '';
     }
 
     void this.refreshPixPayment();
+  }
+
+  hasPaymentMethod(method: PaymentMethod): boolean {
+    return this.paymentService.hasMethod(this.checkout.paymentMethods, method);
   }
 
   onOrderTypeChange(): void {
@@ -84,10 +112,12 @@ export class MenuPageComponent {
       this.checkout.address = '';
       this.checkout.neighborhood = '';
     }
+
+    void this.refreshPixPayment();
   }
 
   async sendOrderToWhatsapp(): Promise<void> {
-    if (this.cart.totalItems() === 0 || this.savingOrder()) {
+    if (!this.canSendOrder()) {
       return;
     }
 
@@ -122,6 +152,36 @@ export class MenuPageComponent {
     return this.deliveryFeeService.getDeliveryFeeNotice(this.checkout.neighborhood);
   }
 
+  getDeliveryFeeAmount(): number {
+    return this.checkout.orderType === 'Entrega'
+      ? this.deliveryFeeService.getDeliveryFee(this.checkout.neighborhood).amount
+      : 0;
+  }
+
+  getPaymentFeeAmount(): number {
+    return this.paymentService.calculateFee(this.checkout.paymentMethods);
+  }
+
+  getOrderTotalAmount(): number {
+    return this.cart.totalAmount() + this.getDeliveryFeeAmount() + this.getPaymentFeeAmount();
+  }
+
+  canSendOrder(): boolean {
+    return (
+      this.cart.totalItems() > 0 &&
+      this.checkout.paymentMethods.length > 0 &&
+      !this.savingOrder()
+    );
+  }
+
+  getPaymentFeeNotice(): string {
+    if (this.getPaymentFeeAmount() === 0) {
+      return 'Sem taxa adicional para Pix ou dinheiro.';
+    }
+
+    return `Taxa de cartão: ${this.formatCurrency(this.getPaymentFeeAmount())}.`;
+  }
+
   async copyPixPayload(): Promise<void> {
     if (!this.pixCopyPaste()) {
       return;
@@ -132,16 +192,25 @@ export class MenuPageComponent {
     window.setTimeout(() => this.pixCopyStatus.set(''), 2500);
   }
 
-  private async refreshPixPayment(): Promise<void> {
-    if (this.checkout.paymentMethod !== 'Pix' || this.cart.totalItems() === 0) {
+  async refreshPixPayment(): Promise<void> {
+    if (!this.hasPaymentMethod('Pix') || this.cart.totalItems() === 0) {
       this.pixQrCodeDataUrl.set('');
       this.pixCopyPaste.set('');
       return;
     }
 
-    const payload = this.pixService.generatePayload(this.cart.totalAmount());
+    const payload = this.pixService.generatePayload(this.getOrderTotalAmount());
     this.pixCopyPaste.set(payload);
-    this.pixQrCodeDataUrl.set(await this.pixService.generateQrCodeDataUrl(this.cart.totalAmount()));
+    this.pixQrCodeDataUrl.set(
+      await this.pixService.generateQrCodeDataUrl(this.getOrderTotalAmount()),
+    );
+  }
+
+  private formatCurrency(value: number): string {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(value);
   }
 
   trackById(_: number, item: { id: string }): string {

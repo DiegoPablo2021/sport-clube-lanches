@@ -64,8 +64,13 @@ function formatTicket(order) {
       return `${item.quantity}x ${item.product_name}\n   ${subtotal}`;
     }),
     line(),
-    `Pagamento: ${order.payment_method || 'A combinar'}`,
+    `Pagamento: ${order.payment_method || 'Pix'}`,
     order.change_for ? `Troco: ${order.change_for}` : '',
+    `Subtotal: ${money(
+      items.reduce((total, item) => total + Number(item.subtotal || 0), 0),
+    )}`,
+    `Entrega: ${money(order.delivery_fee_amount)}`,
+    `Taxa cartao: ${money(order.payment_fee_amount)}`,
     `Total: ${money(order.total_amount)}`,
     order.notes ? `Obs: ${order.notes}` : '',
     line('='),

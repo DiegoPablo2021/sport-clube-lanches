@@ -2,10 +2,14 @@ import { Injectable } from '@angular/core';
 import { businessConfig } from '../config/business.config';
 import { CartItem, CheckoutInfo } from '../models/menu.models';
 import { DeliveryFeeService } from './delivery-fee.service';
+import { PaymentService } from './payment.service';
 
 @Injectable({ providedIn: 'root' })
 export class WhatsappService {
-  constructor(private readonly deliveryFeeService: DeliveryFeeService) {}
+  constructor(
+    private readonly deliveryFeeService: DeliveryFeeService,
+    private readonly paymentService: PaymentService,
+  ) {}
 
   buildOrderMessage(items: CartItem[], checkout: CheckoutInfo): string {
     const products = items
@@ -15,17 +19,23 @@ export class WhatsappService {
       })
       .join('\n');
 
-    const total = items.reduce(
+    const subtotal = items.reduce(
       (amount, item) => amount + item.product.price * item.quantity,
       0,
     );
+    const deliveryFee =
+      checkout.orderType === 'Entrega'
+        ? this.deliveryFeeService.getDeliveryFee(checkout.neighborhood).amount
+        : 0;
+    const paymentFee = this.paymentService.calculateFee(checkout.paymentMethods);
+    const total = subtotal + deliveryFee + paymentFee;
 
     const changeInfo =
-      checkout.paymentMethod === 'Dinheiro'
+      this.paymentService.hasMethod(checkout.paymentMethods, 'Dinheiro')
         ? [`*Troco para:* ${checkout.changeFor || 'Não informado'}`]
         : [];
     const pixInfo =
-      checkout.paymentMethod === 'Pix'
+      this.paymentService.hasMethod(checkout.paymentMethods, 'Pix')
         ? [`*Chave Pix:* ${businessConfig.pix.key}`, `*Titular Pix:* ${businessConfig.pix.receiverName}`]
         : [];
     const deliveryFeeNotice = this.deliveryFeeService
@@ -47,13 +57,16 @@ export class WhatsappService {
       '*Item(ns):*',
       products,
       '',
+      `*Subtotal:* ${this.formatCurrency(subtotal)}`,
+      `*Taxa de entrega:* ${this.formatCurrency(deliveryFee)}`,
+      `*Taxa de cartão:* ${this.formatCurrency(paymentFee)}`,
       `*Total:* ${this.formatCurrency(total)}`,
       '',
       `*Nome:* ${checkout.name || 'A informar'}`,
       `*Telefone:* ${checkout.phone || 'A informar'}`,
       `*Tipo de pedido:* ${checkout.orderType}`,
       ...deliveryInfo,
-      `*Forma de pagamento:* ${this.formatPaymentMethod(checkout.paymentMethod)}`,
+      `*Forma de pagamento:* ${this.paymentService.formatMethods(checkout.paymentMethods)}`,
       ...pixInfo,
       ...changeInfo,
       `*Observação:* ${checkout.notes || 'Nenhuma'}`,
@@ -72,14 +85,4 @@ export class WhatsappService {
     }).format(value);
   }
 
-  private formatPaymentMethod(paymentMethod: string): string {
-    const paymentLabels: Record<string, string> = {
-      'A combinar': 'a combinar',
-      Pix: 'Pix',
-      'Cartao na entrega': 'cartão na entrega',
-      Dinheiro: 'dinheiro',
-    };
-
-    return paymentLabels[paymentMethod] || 'a combinar';
-  }
 }

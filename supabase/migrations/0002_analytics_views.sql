@@ -11,6 +11,8 @@ select
   o.payment_status,
   o.order_status,
   o.subtotal_amount,
+  o.delivery_fee_amount,
+  o.payment_fee_amount,
   o.total_amount,
   c.name as customer_name,
   c.phone as customer_phone

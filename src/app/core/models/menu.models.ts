@@ -22,13 +22,15 @@ export interface CartItem {
   quantity: number;
 }
 
+export type PaymentMethod = 'Pix' | 'Credito na entrega' | 'Debito na entrega' | 'Dinheiro';
+
 export interface CheckoutInfo {
   name: string;
   phone: string;
   orderType: 'Entrega' | 'Retirada';
   address: string;
   neighborhood: string;
-  paymentMethod: string;
+  paymentMethods: PaymentMethod[];
   changeFor: string;
   notes: string;
 }

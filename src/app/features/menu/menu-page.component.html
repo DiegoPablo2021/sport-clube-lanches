@@ -81,93 +81,121 @@
   </section>
 </main>
 
-<aside class="cart-panel" aria-label="Resumo do pedido">
+<aside class="cart-panel" [class.expanded]="cartExpanded()" aria-label="Resumo do pedido">
   <div class="cart-summary">
     <div>
       <span>{{ cart.totalItems() }} itens</span>
-      <strong>{{ cart.totalAmount() | brlCurrency }}</strong>
+      <strong>{{ getOrderTotalAmount() | brlCurrency }}</strong>
     </div>
     <button
       type="button"
       class="send-order"
-      [class.disabled]="cart.totalItems() === 0 || savingOrder()"
-      [disabled]="cart.totalItems() === 0 || savingOrder()"
-      (click)="sendOrderToWhatsapp()"
-      aria-label="Enviar pedido no WhatsApp"
+      [class.disabled]="cart.totalItems() === 0"
+      [disabled]="cart.totalItems() === 0"
+      (click)="openCheckout()"
+      aria-label="Abrir fechamento do pedido"
     >
-      {{ savingOrder() ? 'Registrando pedido...' : 'Enviar pedido no WhatsApp' }}
+      Finalizar pedido
     </button>
   </div>
 
-  @if (cart.items().length > 0) {
-    <div class="cart-items">
-      @for (item of cart.items(); track item.product.id) {
-        <div class="cart-item">
-          <span>{{ item.quantity }}x {{ item.product.name }}</span>
-          <div>
-            <button type="button" (click)="decreaseProduct(item.product.id)">-</button>
-            <button type="button" (click)="addProduct(item.product)">+</button>
-          </div>
-        </div>
-      }
-    </div>
+  @if (cart.items().length > 0 && cartExpanded()) {
+    <div class="cart-details">
+      <div class="cart-actions">
+        <button type="button" class="ghost-button" (click)="closeCheckout()">
+          Continuar escolhendo
+        </button>
+      </div>
 
-    <form class="checkout-form">
-      <label>
-        Nome
-        <input name="name" [(ngModel)]="checkout.name" autocomplete="name" />
-      </label>
-      <label>
-        Telefone
-        <input
-          name="phone"
-          [(ngModel)]="checkout.phone"
-          autocomplete="tel"
-          inputmode="tel"
-          placeholder="(84) 99999-9999"
-        />
-      </label>
-      <label>
-        Entrega ou retirada?
-        <select
-          name="orderType"
-          [(ngModel)]="checkout.orderType"
-          (ngModelChange)="onOrderTypeChange()"
-        >
-          <option value="Entrega">Entrega</option>
-          <option value="Retirada">Retirada no local</option>
-        </select>
-      </label>
-      @if (checkout.orderType === 'Entrega') {
+      <div class="cart-items">
+        @for (item of cart.items(); track item.product.id) {
+          <div class="cart-item">
+            <span>{{ item.quantity }}x {{ item.product.name }}</span>
+            <div>
+              <button type="button" (click)="decreaseProduct(item.product.id)">-</button>
+              <button type="button" (click)="addProduct(item.product)">+</button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <form class="checkout-form">
         <label>
-          Endereco
+          Nome
+          <input name="name" [(ngModel)]="checkout.name" autocomplete="name" />
+        </label>
+        <label>
+          Telefone
           <input
-            name="address"
-            [(ngModel)]="checkout.address"
-            autocomplete="street-address"
+            name="phone"
+            [(ngModel)]="checkout.phone"
+            autocomplete="tel"
+            inputmode="tel"
+            placeholder="(84) 99999-9999"
           />
         </label>
         <label>
-          Bairro
-          <input name="neighborhood" [(ngModel)]="checkout.neighborhood" />
+          Entrega ou retirada?
+          <select
+            name="orderType"
+            [(ngModel)]="checkout.orderType"
+            (ngModelChange)="onOrderTypeChange()"
+          >
+            <option value="Entrega">Entrega</option>
+            <option value="Retirada">Retirada no local</option>
+          </select>
         </label>
-        <p class="delivery-fee-notice">{{ getDeliveryFeeNotice() }}</p>
-      }
-      <label>
-        Forma de pagamento
-        <select
-          name="paymentMethod"
-          [(ngModel)]="checkout.paymentMethod"
-          (ngModelChange)="onPaymentMethodChange()"
-        >
-          <option value="">A combinar</option>
-          <option value="Pix">Pix</option>
-          <option value="Cartao na entrega">Cartao na entrega</option>
-          <option value="Dinheiro">Dinheiro</option>
-        </select>
-      </label>
-      @if (checkout.paymentMethod === 'Dinheiro') {
+        @if (checkout.orderType === 'Entrega') {
+          <label>
+            Endereço
+            <input
+              name="address"
+              [(ngModel)]="checkout.address"
+              (ngModelChange)="refreshPixPayment()"
+              autocomplete="street-address"
+            />
+          </label>
+          <label>
+            Bairro
+            <input
+              name="neighborhood"
+              [(ngModel)]="checkout.neighborhood"
+              (ngModelChange)="refreshPixPayment()"
+            />
+          </label>
+          <p class="delivery-fee-notice">{{ getDeliveryFeeNotice() }}</p>
+        }
         <label>
+          Observação
+          <textarea name="notes" [(ngModel)]="checkout.notes" rows="2"></textarea>
+        </label>
+      </form>
+
+      <section class="payment-panel" aria-label="Formas de pagamento">
+        <div class="payment-heading">
+          <h2>Pagamento</h2>
+          <span>{{ getPaymentFeeNotice() }}</span>
+        </div>
+        <div class="payment-options">
+          @for (option of paymentOptions; track option.method) {
+            <label class="payment-option">
+              <input
+                type="checkbox"
+                [name]="'payment-' + option.method"
+                [checked]="hasPaymentMethod(option.method)"
+                (change)="togglePaymentMethod(option.method, $any($event.target).checked)"
+              />
+              <span>
+                <strong>{{ option.label }}</strong>
+                <small>{{ option.helper }}</small>
+              </span>
+            </label>
+          }
+        </div>
+      </section>
+
+      @if (hasPaymentMethod('Dinheiro')) {
+        <label class="checkout-field">
           Precisa de troco?
           <input
             name="changeFor"
@@ -176,7 +204,7 @@
           />
         </label>
       }
-      @if (checkout.paymentMethod === 'Pix' && pixQrCodeDataUrl()) {
+      @if (hasPaymentMethod('Pix') && pixQrCodeDataUrl()) {
         <section class="pix-payment" aria-label="Pagamento via Pix">
           <div>
             <span>Pix copia e cola</span>
@@ -190,10 +218,23 @@
           }
         </section>
       }
-      <label>
-        Observacao
-        <textarea name="notes" [(ngModel)]="checkout.notes" rows="2"></textarea>
-      </label>
-    </form>
+
+      <div class="checkout-total" aria-label="Total do pedido">
+        <span>Subtotal: {{ cart.totalAmount() | brlCurrency }}</span>
+        <span>Entrega: {{ getDeliveryFeeAmount() | brlCurrency }}</span>
+        <span>Cartão: {{ getPaymentFeeAmount() | brlCurrency }}</span>
+        <strong>Total: {{ getOrderTotalAmount() | brlCurrency }}</strong>
+      </div>
+
+      <button
+        type="button"
+        class="send-order send-order-full"
+        [class.disabled]="!canSendOrder()"
+        [disabled]="!canSendOrder()"
+        (click)="sendOrderToWhatsapp()"
+      >
+        {{ savingOrder() ? 'Registrando pedido...' : 'Enviar pedido no WhatsApp' }}
+      </button>
+    </div>
   }
 </aside>

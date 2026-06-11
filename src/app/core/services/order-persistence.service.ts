@@ -3,6 +3,7 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../../environments/environment';
 import { CartItem, CheckoutInfo } from '../models/menu.models';
 import { DeliveryFeeService } from './delivery-fee.service';
+import { PaymentService } from './payment.service';
 
 interface CreateOrderResult {
   order_id: string;
@@ -17,7 +18,10 @@ export class OrderPersistenceService {
       ? createClient(environment.supabaseUrl, environment.supabaseAnonKey)
       : null;
 
-  constructor(private readonly deliveryFeeService: DeliveryFeeService) {}
+  constructor(
+    private readonly deliveryFeeService: DeliveryFeeService,
+    private readonly paymentService: PaymentService,
+  ) {}
 
   get enabled(): boolean {
     return this.client !== null;
@@ -37,12 +41,19 @@ export class OrderPersistenceService {
       order_type: checkout.orderType,
       address: checkout.orderType === 'Entrega' ? checkout.address : null,
       neighborhood: checkout.orderType === 'Entrega' ? checkout.neighborhood : null,
+      delivery_fee_amount:
+        checkout.orderType === 'Entrega'
+          ? this.deliveryFeeService.getDeliveryFee(checkout.neighborhood).amount
+          : 0,
       delivery_fee_label:
         checkout.orderType === 'Entrega'
           ? this.deliveryFeeService.getDeliveryFeeNotice(checkout.neighborhood)
           : null,
-      payment_method: checkout.paymentMethod || 'A combinar',
-      change_for: checkout.paymentMethod === 'Dinheiro' ? checkout.changeFor : null,
+      payment_fee_amount: this.paymentService.calculateFee(checkout.paymentMethods),
+      payment_method: this.paymentService.formatMethods(checkout.paymentMethods),
+      change_for: this.paymentService.hasMethod(checkout.paymentMethods, 'Dinheiro')
+        ? checkout.changeFor
+        : null,
       notes: checkout.notes,
       items: items.map((item) => ({
         product_slug: item.product.id,
