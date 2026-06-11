@@ -1,5 +1,5 @@
 import os
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 import pandas as pd
 import plotly.express as px
@@ -35,14 +35,15 @@ st.markdown(
         background: #111;
       }}
       .block-container {{
-        padding-top: 2rem;
+        padding-top: 3.25rem;
       }}
       .dashboard-title {{
         color: {TEXT};
         font-size: 2.4rem;
         font-weight: 900;
-        line-height: 1;
-        margin-bottom: .25rem;
+        line-height: 1.18;
+        margin: 0 0 .35rem;
+        padding-top: .25rem;
       }}
       .dashboard-subtitle {{
         color: {MUTED};
@@ -94,6 +95,22 @@ except Exception as exc:
 
 def money(value: float) -> str:
     return f"R$ {float(value or 0):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+
+def get_date_filter_bounds(source: pd.DataFrame) -> tuple[date, date, str]:
+    today = date.today()
+
+    if source.empty:
+        return today, today, "Dia"
+
+    source_dates = pd.to_datetime(source["order_date"]).dt.date
+    min_value = source_dates.min()
+    max_value = source_dates.max()
+
+    if min_value == max_value:
+        return min_value, max_value, "Dia"
+
+    return min_value, max_value, "Periodo"
 
 
 def empty_frame(columns: list[str]) -> pd.DataFrame:
@@ -212,6 +229,8 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+has_orders = not daily_sales.empty
+
 if daily_sales.empty:
     st.info("Ainda nao ha pedidos registrados. Depois do primeiro pedido salvo no Supabase, os graficos passam a mostrar historico real.")
     daily_sales = pd.DataFrame(
@@ -227,21 +246,62 @@ if daily_sales.empty:
     )
 
 daily_sales["order_date"] = pd.to_datetime(daily_sales["order_date"]).dt.date
-min_date = daily_sales["order_date"].min()
-max_date = daily_sales["order_date"].max()
-
-default_start = max(min_date, max_date - timedelta(days=30))
-date_range = st.sidebar.date_input(
-    "Periodo",
-    value=(default_start, max_date),
-    min_value=min_date,
-    max_value=max_date,
+min_date, max_date, default_filter_mode = get_date_filter_bounds(
+    daily_sales if has_orders else pd.DataFrame()
 )
 
-if isinstance(date_range, tuple) and len(date_range) == 2:
-    start_date, end_date = date_range
+st.sidebar.markdown("### Filtros")
+filter_mode = st.sidebar.radio(
+    "Filtrar por",
+    options=["Dia", "Mes", "Ano", "Periodo"],
+    index=["Dia", "Mes", "Ano", "Periodo"].index(default_filter_mode),
+)
+
+if filter_mode == "Dia":
+    selected_day = st.sidebar.date_input(
+        "Data",
+        value=max_date,
+        min_value=min_date,
+        max_value=max_date,
+    )
+    start_date = selected_day
+    end_date = selected_day
+elif filter_mode == "Mes":
+    available_months = (
+        pd.to_datetime(daily_sales["order_date"])
+        .dt.to_period("M")
+        .drop_duplicates()
+        .sort_values(ascending=False)
+    )
+    selected_month = st.sidebar.selectbox(
+        "Mes",
+        options=available_months.astype(str).tolist(),
+        format_func=lambda value: datetime.strptime(value, "%Y-%m").strftime("%m/%Y"),
+    )
+    month_start = pd.Period(selected_month, freq="M").start_time.date()
+    month_end = pd.Period(selected_month, freq="M").end_time.date()
+    start_date = max(month_start, min_date)
+    end_date = min(month_end, max_date)
+elif filter_mode == "Ano":
+    available_years = sorted({item.year for item in daily_sales["order_date"]}, reverse=True)
+    selected_year = st.sidebar.selectbox("Ano", options=available_years)
+    start_date = max(date(selected_year, 1, 1), min_date)
+    end_date = min(date(selected_year, 12, 31), max_date)
 else:
-    start_date, end_date = min_date, max_date
+    default_start = max(min_date, max_date - timedelta(days=30))
+    date_range = st.sidebar.date_input(
+        "Periodo",
+        value=(default_start, max_date),
+        min_value=min_date,
+        max_value=max_date,
+    )
+
+    if isinstance(date_range, tuple) and len(date_range) == 2:
+        start_date, end_date = date_range
+    else:
+        start_date, end_date = min_date, max_date
+
+st.sidebar.caption(f"Selecionado: {start_date.strftime('%d/%m/%Y')} a {end_date.strftime('%d/%m/%Y')}")
 
 filtered_daily = daily_sales[
     (daily_sales["order_date"] >= start_date) & (daily_sales["order_date"] <= end_date)
@@ -268,15 +328,18 @@ overview_tab, menu_tab, customer_tab, operation_tab, period_tab = st.tabs(
 
 with overview_tab:
     st.markdown('<span class="section-caption">Resultado geral</span>', unsafe_allow_html=True)
-    fig = px.line(
-        filtered_daily.sort_values("order_date"),
-        x="order_date",
-        y="gross_revenue",
-        markers=True,
-        labels={"order_date": "Data", "gross_revenue": "Faturamento"},
-        color_discrete_sequence=[GREEN],
-    )
-    st.plotly_chart(chart_layout(fig), use_container_width=True)
+    if has_orders and gross_revenue > 0:
+        fig = px.line(
+            filtered_daily.sort_values("order_date"),
+            x="order_date",
+            y="gross_revenue",
+            markers=True,
+            labels={"order_date": "Data", "gross_revenue": "Faturamento"},
+            color_discrete_sequence=[GREEN],
+        )
+        st.plotly_chart(chart_layout(fig), use_container_width=True)
+    else:
+        st.info("Sem vendas no filtro selecionado. Assim que houver pedidos, o grafico de faturamento aparece aqui.")
 
     col_a, col_b, col_c = st.columns(3)
     with col_a:
