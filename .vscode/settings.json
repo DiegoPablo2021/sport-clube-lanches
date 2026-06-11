@@ -13,5 +13,8 @@
     "**/node_modules": true,
     "**/out-tsc": true
   },
+  "files.associations": {
+    "**/supabase/apply-all.sql": "plaintext"
+  },
   "typescript.tsdk": "node_modules/typescript/lib"
 }

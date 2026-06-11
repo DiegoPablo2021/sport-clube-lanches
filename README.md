@@ -1,50 +1,55 @@
-# Sport Clube Lanches - Cardapio Digital e Delivery
+# Sport Clube Lanches - Cardapio Digital, Pedidos e Analytics
 
-Aplicacao web para organizar o cardapio, acelerar o atendimento via WhatsApp e preparar a base de dados do Sport Clube Lanches para gestao, historico de clientes e dashboards.
+Aplicacao web criada para apoiar o delivery familiar Sport Clube Lanches, organizando o cardapio, acelerando o atendimento via WhatsApp, registrando pedidos no Supabase e preparando indicadores para tomada de decisao.
 
-## Visao geral
+## Contexto
 
-O Sport Clube Lanches e um delivery familiar. A primeira dor resolvida pelo projeto e substituir o atendimento manual por imagens soltas no WhatsApp por um fluxo mais organizado:
+O Sport Clube Lanches funciona como delivery familiar. A rotina atual depende fortemente do WhatsApp: o cliente chama, pede cardapio, recebe imagens, monta o pedido em conversa e aguarda confirmacao manual.
+
+Este projeto reduz esse atrito com um fluxo simples:
 
 ```text
 Cliente acessa o cardapio
   -> escolhe produtos
-  -> informa entrega/retirada e pagamento
-  -> envia pedido pronto pelo WhatsApp
+  -> informa dados de entrega, retirada e pagamento
+  -> visualiza Pix/QR Code quando necessario
+  -> envia o pedido pronto pelo WhatsApp
+  -> pedido pode ser salvo no Supabase
+  -> dados alimentam Streamlit, Power BI e impressao local
 ```
 
-A evolucao planejada adiciona backend, Supabase, Streamlit e Power BI para transformar pedidos em historico e inteligencia de negocio.
+## Links
 
-## URL de producao
+Producao:
 
 ```text
 https://delivery-web-menu.vercel.app
 ```
 
-## Repositorio
+Repositorio:
 
 ```text
 https://github.com/DiegoPablo2021/sport-clube-lanches
 ```
 
-## Funcionalidades atuais
+## Funcionalidades
 
 - Cardapio digital responsivo.
-- Categorias e produtos cadastrados a partir das artes originais.
-- Fotos reais adicionais extraidas de `docs/references/menu-images/mais-fotos/Mais fotos.docx`.
+- Categorias e produtos organizados.
+- Imagens reais dos produtos tratadas e padronizadas.
 - Promocoes e combos em destaque.
 - Carrinho local.
-- Dados do cliente: nome e telefone.
-- Tipo de pedido: entrega ou retirada.
-- Endereco e bairro para entrega.
-- Retirada no local com endereco da lanchonete.
-- Taxa de entrega: gratis para Sport Clube 3/4; demais localidades consultar taxa.
-- Forma de pagamento: a combinar, Pix, cartao na entrega ou dinheiro.
-- QR Code e Pix copia-e-cola quando pagamento for Pix.
+- Checkout com nome, telefone, entrega/retirada, endereco, bairro e observacao.
+- Regra de entrega: Sport Clube 3/4 sem taxa; demais localidades consultar taxa.
+- Pagamentos: a combinar, Pix, cartao na entrega e dinheiro.
+- QR Code Pix e Pix copia-e-cola.
 - Campo de troco quando pagamento for dinheiro.
-- Observacao livre do pedido.
-- Geracao de mensagem pronta para WhatsApp.
-- Persistencia opcional de pedidos no Supabase antes de abrir o WhatsApp.
+- Mensagem pronta para WhatsApp.
+- Persistencia opcional de pedidos no Supabase.
+- Views SQL para KPIs, BI e operacao.
+- Dashboard Streamlit em tema dark.
+- Preparacao para Power BI.
+- Agente local para impressao de comandas.
 
 ## Stack
 
@@ -55,45 +60,68 @@ Frontend:
 - SCSS
 - Angular Signals
 
+Dados:
+
+- Supabase PostgreSQL
+- Row Level Security
+- SQL views
+- RPC functions
+
+Analytics:
+
+- Streamlit
+- Pandas
+- Plotly
+- Power BI Desktop
+
+Operacao:
+
+- WhatsApp
+- Agente local Node.js para impressao
+
 Deploy:
 
 - GitHub
 - Vercel
 
-Dados e BI:
-
-- Supabase PostgreSQL
-- SQL views para KPIs
-- Streamlit para prototipo de dashboard
-- Power BI para painel oficial futuro
-
-## Estrutura do projeto
+## Estrutura
 
 ```text
-.
+delivery-web-menu/
 ├── analytics/
-│   └── streamlit/              Dashboard inicial em Streamlit
-├── docs/                       Documentacao, arquitetura e operacao
+│   ├── powerbi/                Apoio para modelo Power BI
+│   └── streamlit/              Dashboard operacional
+├── docs/                       Documentacao do produto e arquitetura
+├── printer-agent/              Agente local para impressao de pedidos
 ├── public/
-│   └── menu-images/            Imagens usadas pela aplicacao
-├── printer-agent/              Agente local para imprimir comandas
+│   └── menu-images/            Imagens usadas no cardapio
+├── scripts/                    Geradores auxiliares
 ├── src/
-│   └── app/
-│       ├── core/               Configuracoes, modelos e servicos
-│       ├── data/               Cardapio estatico da Fase 1
-│       ├── features/           Telas e fluxos
-│       └── shared/             Utilitarios reutilizaveis
+│   ├── app/
+│   │   ├── core/               Configuracoes, modelos e servicos
+│   │   ├── data/               Cardapio estatico da Fase 1
+│   │   ├── features/           Paginas e fluxos
+│   │   └── shared/             Pipes e utilitarios
+│   └── environments/           Configuracoes por ambiente
 ├── supabase/
-│   ├── migrations/             Schema, funcoes e views analiticas
+│   ├── migrations/             Schema, funcoes e views
 │   ├── apply-all.sql           SQL unico para colar no Supabase
-│   └── seed.sql                Seed completo do cardapio
-└── vercel.json                 Configuracao de deploy
+│   ├── seed.sql                Carga do cardapio
+│   └── useful-queries.sql      Consultas de teste e operacao
+└── vercel.json
 ```
 
-## Como rodar localmente
+## Como Rodar o Cardapio
+
+Instalar dependencias:
 
 ```bash
 npm install
+```
+
+Subir em desenvolvimento:
+
+```bash
 npm start
 ```
 
@@ -112,112 +140,72 @@ npm run build
 Testes:
 
 ```bash
-npm test
+npm run test:ci
 ```
-
-## Deploy
-
-O projeto esta conectado ao GitHub na Vercel. Pushes na branch `main` disparam deploy automatico.
-
-Configuracao:
-
-- Build command: `npm run build`
-- Output directory: `dist/delivery-web-menu/browser`
-- Node.js: `24.x`
 
 ## Supabase
 
-A Fase 2 prepara o banco para salvar pedidos reais.
+O Supabase guarda catalogo, clientes, pedidos, itens, eventos e serve como base para analytics e impressao.
 
-Migrations:
+### Arquivos
 
-- `supabase/migrations/0001_core_schema.sql`
-- `supabase/migrations/0002_analytics_views.sql`
-- `supabase/migrations/0003_public_order_rpc.sql`
-- `supabase/migrations/0004_printing_rpc.sql`
-- `supabase/migrations/0005_advanced_kpi_views.sql`
-- `supabase/seed.sql`
-- `supabase/apply-all.sql`
-- `supabase/useful-queries.sql`
+- `supabase/migrations/0001_core_schema.sql`: tabelas principais, indices, triggers e RLS.
+- `supabase/migrations/0002_analytics_views.sql`: views basicas de vendas, clientes, bairros, horarios e produtos.
+- `supabase/migrations/0003_public_order_rpc.sql`: funcao `create_public_order(payload jsonb)` usada pelo cardapio.
+- `supabase/migrations/0004_printing_rpc.sql`: funcoes para buscar pedidos pendentes de impressao e marcar como impresso.
+- `supabase/migrations/0005_advanced_kpi_views.sql`: KPIs avancados, ciclo de vida, produtos juntos e mapa dia/hora.
+- `supabase/migrations/0006_api_view_grants.sql`: permissoes de leitura das views pela API.
+- `supabase/seed.sql`: carga completa do cardapio.
+- `supabase/apply-all.sql`: arquivo unico para executar no SQL Editor do Supabase.
+- `supabase/useful-queries.sql`: consultas de validacao e operacao.
 
-Tabelas principais:
+### Aplicar Banco
 
-- `categories`
-- `products`
-- `customers`
-- `orders`
-- `order_items`
-- `order_events`
+No Supabase SQL Editor:
 
-Funcao publica para criacao de pedido:
+1. Abrir `supabase/apply-all.sql`.
+2. Copiar todo o conteudo.
+3. Colar no SQL Editor.
+4. Clicar em `Run`.
 
-```sql
-public.create_public_order(payload jsonb)
+Para regenerar o SQL unico:
+
+```bash
+npm run sql:supabase
 ```
 
-Essa funcao valida produtos ativos e usa os precos do banco, evitando confiar em preco enviado pelo navegador.
-
-Para regenerar o seed do catalogo a partir do cardapio Angular:
+Para regenerar apenas o seed:
 
 ```bash
 npm run seed:supabase
 ```
 
-Para ativar a gravacao de pedidos no frontend, preencher `src/environments/environment.prod.ts` com:
+## Persistencia no Frontend
+
+Por padrao, a gravacao de pedidos no Supabase fica desligada para evitar erro antes de configurar as chaves.
+
+Para ativar em producao, preencher `src/environments/environment.prod.ts`:
 
 ```ts
-supabaseUrl: 'https://SEU-PROJETO.supabase.co',
-supabaseAnonKey: 'SUA_ANON_KEY',
-persistOrders: true,
+export const environment = {
+  production: true,
+  supabaseUrl: 'https://SEU-PROJETO.supabase.co',
+  supabaseAnonKey: 'SUA_CHAVE_PUBLICA',
+  persistOrders: true,
+};
 ```
 
-## DataViz, KPIs e BI
-
-O projeto foi preparado para responder perguntas como:
-
-- Qual dia vende mais?
-- Qual produto mais sai?
-- Qual cliente compra mais?
-- Qual bairro compra mais?
-- Qual e o horario de pico?
-- Qual o ganho por dia, semana, mes, trimestre, semestre e ano?
-- Quais clientes podem receber promocao por recorrencia?
-- Quais produtos favoritos de cada cliente podem orientar promocoes?
-
-Views analiticas:
-
-- `vw_daily_sales`
-- `vw_weekday_sales`
-- `vw_period_sales`
-- `vw_product_sales`
-- `vw_category_sales`
-- `vw_payment_methods`
-- `vw_neighborhood_sales`
-- `vw_order_type_sales`
-- `vw_hourly_sales`
-- `vw_customer_recurrence`
-- `vw_customer_promotion_candidates`
-- `vw_customer_favorite_products`
-- `vw_product_daily_sales`
-- `vw_hour_weekday_heatmap`
-- `vw_basket_summary`
-- `vw_product_pair_sales`
-- `vw_customer_lifecycle`
-- `vw_daily_operational_summary`
-- `vw_order_status_summary`
-- `vw_kpi_snapshot`
+Use chave publica/publishable no frontend. Nunca use `service_role` ou `secret key` dentro do Angular.
 
 ## Streamlit
 
-Dashboard inicial:
+Dashboard operacional em:
 
 ```text
 analytics/streamlit/app.py
 ```
 
-O app usa tema dark alinhado ao cardapio e cobre KPIs operacionais, produtos, clientes, bairros, horarios e sugestoes de promocao.
-
-Como rodar:
+Rodar:
 
 ```bash
 cd analytics/streamlit
@@ -228,55 +216,145 @@ copy .env.example .env
 streamlit run app.py
 ```
 
-Configurar no `.env`:
+Configurar `analytics/streamlit/.env`:
 
-```text
+```env
 SUPABASE_URL=https://SEU-PROJETO.supabase.co
-SUPABASE_KEY=SUA_CHAVE_ANON_OU_SECRET
+SUPABASE_KEY=SUA_CHAVE_PUBLISHABLE_OU_SECRET
 ```
+
+O arquivo `.env.example` e apenas modelo. A chave real deve ficar em `.env`, que nao deve ser versionado.
+
+KPIs principais:
+
+- Pedidos.
+- Faturamento.
+- Ticket medio.
+- Faturamento do dia.
+- Pedidos abertos.
+- Cancelamentos.
+- Produtos mais vendidos.
+- Categorias fortes.
+- Bairros com maior demanda.
+- Horarios de pico.
+- Clientes recorrentes.
+- Clientes candidatos a promocao.
+- Ciclo de vida dos clientes.
+- Produtos que saem juntos.
 
 ## Power BI
 
-O Power BI deve consumir o PostgreSQL do Supabase diretamente, sem Excel como ponte.
+O modelo esta preparado para Power BI por meio das views `vw_*`.
 
-Recomendacao:
+Recomendacao inicial:
 
-- Conectar o Power BI ao Supabase PostgreSQL.
-- Usar as views `vw_*`.
-- Evitar conectar diretamente nas tabelas operacionais.
-- Preservar dados sensiveis de cliente, como telefone e endereco.
+- Usar modo `Importar`.
+- Usar as views em vez das tabelas cruas.
+- Evitar expor telefone/endereco em telas compartilhadas.
 
-Materiais de apoio:
+Materiais:
 
 - `analytics/powerbi/README.md`
 - `analytics/powerbi/power-query.md`
 - `analytics/powerbi/measures.dax`
 
-## Impressora de pedidos
+Observacao: no plano free do Supabase, a conexao direta PostgreSQL pode envolver IPv6 ou validacao SSL. Se o Power BI apresentar erro de certificado, usar Streamlit como painel inicial e retomar Power BI depois com ODBC/gateway/certificado configurado.
 
-O projeto inclui um agente local em `printer-agent/` para consultar pedidos no Supabase e imprimir comandas na cozinha.
+## Impressao de Pedidos
 
-## Documentacao
+O agente local fica em:
 
-- Requirements: `docs/REQUIREMENTS.md`
-- Arquitetura: `docs/ARQUITETURA-E-PLANO-DO-PROJETO.md`
-- Fase 1: `docs/FASE-1-CARDAPIO-DIGITAL.md`
-- Fase 2: `docs/FASE-2-BACKEND-PERSISTENCIA.md`
-- WhatsApp Business: `docs/WHATSAPP-BUSINESS.md`
-- Observabilidade e KPIs: `docs/OBSERVABILIDADE-KPIS.md`
+```text
+printer-agent/
+```
 
-## Status atual
+Configurar:
 
-- Fase 1 publicada.
-- GitHub conectado a Vercel.
-- Base Supabase versionada em SQL.
-- Frontend preparado para persistencia opcional no Supabase.
-- SQL unico `supabase/apply-all.sql` preparado para execucao no Supabase.
-- Agente local de impressao criado em `printer-agent/`.
-- Streamlit inicial criado.
-- Views de BI preparadas.
-- Power BI Desktop documentado.
-- Proximo passo: logar no Supabase, criar o projeto real, aplicar migrations, rodar seed e preencher as chaves do ambiente.
+```bash
+cd printer-agent
+npm install
+copy .env.example .env
+```
+
+Exemplo de `.env`:
+
+```env
+SUPABASE_URL=https://SEU-PROJETO.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=SUA_SERVICE_ROLE_KEY
+PRINT_MODE=file
+POLL_INTERVAL_MS=5000
+WINDOWS_PRINTER_NAME=
+PAPER_COLUMNS=32
+```
+
+Modos:
+
+- `file`: gera arquivo `.txt` da comanda em `printer-agent/out/`.
+- `console`: imprime no terminal.
+- `windows`: envia para a impressora padrao ou para `WINDOWS_PRINTER_NAME`.
+
+Rodar uma vez:
+
+```bash
+npm run once
+```
+
+Rodar continuamente:
+
+```bash
+npm start
+```
+
+Use `service_role` apenas no agente local. Nao enviar essa chave para GitHub, Vercel ou frontend.
+
+## Pix
+
+O Pix configurado no cardapio gera QR Code e copia-e-cola no checkout.
+
+Configuracao em:
+
+```text
+src/app/core/config/business.config.ts
+```
+
+## Deploy
+
+O deploy e automatico pela Vercel a cada push na branch `main`.
+
+Configuracao:
+
+- Build command: `npm run build`
+- Output directory: `dist/delivery-web-menu/browser`
+- Node.js: `24.x`
+
+## Seguranca
+
+- Nao versionar `.env`.
+- Nao usar `service_role` no frontend.
+- Chaves reais devem ficar apenas em `.env` local ou ambiente seguro.
+- Dados de cliente devem ser tratados com cuidado.
+- Evitar expor telefone/endereco em dashboards compartilhados.
+
+## Fluxo Operacional Sugerido
+
+1. Cliente acessa o cardapio.
+2. Cliente monta o pedido.
+3. Cliente escolhe forma de pagamento.
+4. Site abre WhatsApp com pedido formatado.
+5. Pedido e salvo no Supabase quando persistencia estiver ativa.
+6. Kardiele/Ryan confirmam pagamento/pedido.
+7. Leandro recebe a comanda pela rotina local de impressao.
+8. Dados alimentam Streamlit e, futuramente, Power BI.
+
+## Status
+
+- Cardapio publicado.
+- QR Code Pix implementado.
+- Supabase estruturado.
+- SQL unico de aplicacao criado.
+- Streamlit funcionando via API do Supabase.
+- Agente local de impressao criado.
+- Power BI preparado, aguardando ajuste de conexao/driver.
 
 ## Desenvolvedor
 
