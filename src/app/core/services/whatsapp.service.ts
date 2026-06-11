@@ -44,7 +44,7 @@ export class WhatsappService {
     return [
       `Olá! Quero fazer um pedido no *${businessConfig.name}*:`,
       '',
-      '*Itens:*',
+      '*Item(ns):*',
       products,
       '',
       `*Total:* ${this.formatCurrency(total)}`,
