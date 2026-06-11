@@ -9,6 +9,7 @@ const inputs = [
   'supabase/migrations/0003_public_order_rpc.sql',
   'supabase/migrations/0004_printing_rpc.sql',
   'supabase/migrations/0005_advanced_kpi_views.sql',
+  'supabase/migrations/0006_api_view_grants.sql',
   'supabase/seed.sql',
 ];
 

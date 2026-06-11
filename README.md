@@ -231,7 +231,8 @@ streamlit run app.py
 Configurar no `.env`:
 
 ```text
-SUPABASE_DB_URL=postgresql+psycopg2://...
+SUPABASE_URL=https://SEU-PROJETO.supabase.co
+SUPABASE_KEY=SUA_CHAVE_ANON_OU_SECRET
 ```
 
 ## Power BI

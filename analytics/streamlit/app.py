@@ -6,7 +6,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, text
+from supabase import create_client
 
 load_dotenv()
 
@@ -72,20 +72,20 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-database_url = os.getenv("SUPABASE_DB_URL")
+supabase_url = os.getenv("SUPABASE_URL")
+supabase_key = os.getenv("SUPABASE_KEY")
 
-if not database_url:
-    st.warning("Configure SUPABASE_DB_URL no arquivo analytics/streamlit/.env para carregar dados reais.")
+if not supabase_url or not supabase_key:
+    st.warning("Configure SUPABASE_URL e SUPABASE_KEY no arquivo analytics/streamlit/.env para carregar dados reais.")
     st.stop()
 
-engine = create_engine(database_url, pool_pre_ping=True)
+client = create_client(supabase_url, supabase_key)
 
 try:
-    with engine.connect() as connection:
-        connection.execute(text("select 1"))
+    client.table("vw_kpi_snapshot").select("*").limit(1).execute()
 except Exception as exc:
     st.error(
-        "Nao foi possivel conectar no Supabase. Confira SUPABASE_DB_URL em "
+        "Nao foi possivel conectar no Supabase. Confira SUPABASE_URL e SUPABASE_KEY em "
         "`analytics/streamlit/.env` e reinicie o Streamlit."
     )
     st.code(str(exc), language="text")
@@ -101,9 +101,24 @@ def empty_frame(columns: list[str]) -> pd.DataFrame:
 
 
 @st.cache_data(ttl=300)
-def load_frame(query: str, columns: tuple[str, ...]) -> pd.DataFrame:
-    with engine.connect() as connection:
-        return pd.read_sql(text(query), connection)
+def load_frame(
+    table_name: str,
+    columns: tuple[str, ...],
+    order_by: str | None = None,
+    ascending: bool = True,
+    limit: int | None = None,
+) -> pd.DataFrame:
+    query = client.table(table_name).select("*")
+
+    if order_by:
+        query = query.order(order_by, desc=not ascending)
+
+    if limit:
+        query = query.limit(limit)
+
+    response = query.execute()
+    data = response.data or []
+    return pd.DataFrame(data, columns=list(columns))
 
 
 def chart_layout(fig: go.Figure) -> go.Figure:
@@ -120,63 +135,74 @@ def chart_layout(fig: go.Figure) -> go.Figure:
 
 
 daily_sales = load_frame(
-    "select * from public.vw_daily_sales order by order_date desc",
+    "vw_daily_sales",
     ("order_date", "total_orders", "cancelled_orders", "gross_revenue", "average_ticket"),
+    order_by="order_date",
+    ascending=False,
 )
 period_sales = load_frame(
-    "select * from public.vw_period_sales order by period_start desc",
+    "vw_period_sales",
     ("period_type", "period_start", "total_orders", "gross_revenue", "average_ticket"),
+    order_by="period_start",
+    ascending=False,
 )
 weekday_sales = load_frame(
-    "select * from public.vw_weekday_sales",
+    "vw_weekday_sales",
     ("weekday_number", "weekday_name", "total_orders", "gross_revenue", "average_ticket"),
 )
 product_sales = load_frame(
-    "select * from public.vw_product_sales limit 15",
+    "vw_product_sales",
     ("product_id", "product_name", "quantity_sold", "gross_revenue", "orders_count"),
+    limit=15,
 )
 category_sales = load_frame(
-    "select * from public.vw_category_sales",
+    "vw_category_sales",
     ("category_id", "category_name", "quantity_sold", "gross_revenue", "orders_count"),
 )
 neighborhood_sales = load_frame(
-    "select * from public.vw_neighborhood_sales limit 15",
+    "vw_neighborhood_sales",
     ("neighborhood", "total_orders", "gross_revenue", "average_ticket"),
+    limit=15,
 )
 payment_methods = load_frame(
-    "select * from public.vw_payment_methods",
+    "vw_payment_methods",
     ("payment_method", "total_orders", "gross_revenue"),
 )
 hourly_sales = load_frame(
-    "select * from public.vw_hourly_sales",
+    "vw_hourly_sales",
     ("order_hour", "total_orders", "gross_revenue"),
 )
 heatmap = load_frame(
-    "select * from public.vw_hour_weekday_heatmap",
+    "vw_hour_weekday_heatmap",
     ("weekday_number", "weekday_name", "order_hour", "total_orders", "gross_revenue"),
 )
 customer_recurrence = load_frame(
-    "select * from public.vw_customer_recurrence limit 20",
+    "vw_customer_recurrence",
     ("customer_id", "customer_name", "customer_phone", "total_orders", "gross_revenue", "first_order_at", "last_order_at"),
+    limit=20,
 )
 promotion_candidates = load_frame(
-    "select * from public.vw_customer_promotion_candidates limit 20",
+    "vw_customer_promotion_candidates",
     ("customer_id", "customer_name", "customer_phone", "orders_last_30_days", "revenue_last_30_days", "last_order_at", "suggested_action"),
+    limit=20,
 )
 lifecycle = load_frame(
-    "select * from public.vw_customer_lifecycle limit 50",
+    "vw_customer_lifecycle",
     ("customer_id", "customer_name", "customer_phone", "total_orders", "gross_revenue", "last_order_at", "days_since_last_order", "lifecycle_status"),
+    limit=50,
 )
 basket_summary = load_frame(
-    "select * from public.vw_basket_summary limit 100",
+    "vw_basket_summary",
     ("order_id", "order_number", "created_at", "total_amount", "distinct_products", "total_items", "basket_size_label"),
+    limit=100,
 )
 product_pairs = load_frame(
-    "select * from public.vw_product_pair_sales limit 10",
+    "vw_product_pair_sales",
     ("product_a", "product_b", "orders_together", "related_revenue"),
+    limit=10,
 )
 operational = load_frame(
-    "select * from public.vw_daily_operational_summary",
+    "vw_daily_operational_summary",
     ("reference_date", "orders_today", "revenue_today", "average_ticket_today", "open_orders_today", "unique_customers_today"),
 )
 
