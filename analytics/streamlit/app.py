@@ -213,8 +213,18 @@ st.markdown(
 )
 
 if daily_sales.empty:
-    st.info("Ainda nao ha pedidos registrados. Depois do primeiro pedido salvo no Supabase, os KPIs aparecem aqui.")
-    st.stop()
+    st.info("Ainda nao ha pedidos registrados. Depois do primeiro pedido salvo no Supabase, os graficos passam a mostrar historico real.")
+    daily_sales = pd.DataFrame(
+        [
+            {
+                "order_date": date.today(),
+                "total_orders": 0,
+                "cancelled_orders": 0,
+                "gross_revenue": 0,
+                "average_ticket": 0,
+            }
+        ]
+    )
 
 daily_sales["order_date"] = pd.to_datetime(daily_sales["order_date"]).dt.date
 min_date = daily_sales["order_date"].min()
