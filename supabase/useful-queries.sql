@@ -42,6 +42,11 @@ from public.vw_orders_base
 order by created_at desc
 limit 20;
 
+-- Remover um pedido de teste pelo numero.
+-- Use apenas para pedidos criados em validacao. Os itens e eventos sao removidos em cascata.
+delete from public.orders
+where order_number = 1;
+
 -- Itens do ultimo pedido.
 select
   o.order_number,

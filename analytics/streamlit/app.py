@@ -112,6 +112,38 @@ def money(value: float) -> str:
     return f"R$ {float(value or 0):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
+def date_label(value: object) -> str:
+    return pd.to_datetime(value).strftime("%d/%m/%Y")
+
+
+def hour_label(value: object) -> str:
+    return f"{int(value):02d}h"
+
+
+def format_period_label(row: pd.Series) -> str:
+    period_start = pd.to_datetime(row["period_start"])
+    period_type = row["period_type"]
+
+    if period_type == "day":
+        return period_start.strftime("%d/%m/%Y")
+
+    if period_type == "week":
+        return f"Semana de {period_start.strftime('%d/%m/%Y')}"
+
+    if period_type == "month":
+        return period_start.strftime("%m/%Y")
+
+    if period_type == "quarter":
+        quarter = ((period_start.month - 1) // 3) + 1
+        return f"{quarter}o tri/{period_start.year}"
+
+    if period_type == "semester":
+        semester = 1 if period_start.month <= 6 else 2
+        return f"{semester}o sem/{period_start.year}"
+
+    return str(period_start.year)
+
+
 def get_date_filter_bounds(source: pd.DataFrame) -> tuple[date, date, str]:
     today = date.today()
 
@@ -344,12 +376,14 @@ overview_tab, menu_tab, customer_tab, operation_tab, period_tab = st.tabs(
 with overview_tab:
     st.markdown('<span class="section-caption">Resultado geral</span>', unsafe_allow_html=True)
     if has_orders and gross_revenue > 0:
+        overview_daily = filtered_daily.sort_values("order_date").copy()
+        overview_daily["order_date_label"] = overview_daily["order_date"].apply(date_label)
         fig = px.line(
-            filtered_daily.sort_values("order_date"),
-            x="order_date",
+            overview_daily,
+            x="order_date_label",
             y="gross_revenue",
             markers=True,
-            labels={"order_date": "Data", "gross_revenue": "Faturamento"},
+            labels={"order_date_label": "Data", "gross_revenue": "Faturamento"},
             color_discrete_sequence=[GREEN],
         )
         st.plotly_chart(chart_layout(fig), use_container_width=True)
@@ -429,17 +463,29 @@ with operation_tab:
     col_a, col_b = st.columns([1, 1])
     with col_a:
         st.markdown('<span class="section-caption">Horario de pico</span>', unsafe_allow_html=True)
+        hourly_chart = hourly_sales.copy()
+        hourly_chart["hour_label"] = (
+            hourly_chart["order_hour"].apply(hour_label)
+            if not hourly_chart.empty
+            else pd.Series(dtype=str)
+        )
+
         fig = px.bar(
-            hourly_sales,
-            x="order_hour",
+            hourly_chart,
+            x="hour_label",
             y="total_orders",
-            labels={"order_hour": "Hora", "total_orders": "Pedidos"},
+            labels={"hour_label": "Hora", "total_orders": "Pedidos"},
             color_discrete_sequence=[GREEN],
         )
         st.plotly_chart(chart_layout(fig), use_container_width=True)
     with col_b:
-        st.markdown('<span class="section-caption">Tamanho dos pedidos</span>', unsafe_allow_html=True)
-        basket_counts = basket_summary.groupby("basket_size_label", as_index=False).size()
+        st.markdown('<span class="section-caption">Perfil dos pedidos</span>', unsafe_allow_html=True)
+        basket_counts = basket_summary.copy()
+        if not basket_counts.empty:
+            basket_counts["basket_size_label"] = basket_counts["basket_size_label"].replace(
+                {"Pedido medio": "Pedido médio"}
+            )
+        basket_counts = basket_counts.groupby("basket_size_label", as_index=False).size()
         fig = px.pie(
             basket_counts,
             names="basket_size_label",
@@ -459,7 +505,7 @@ with operation_tab:
         st.plotly_chart(chart_layout(fig), use_container_width=True)
 
 with period_tab:
-    period_label = st.selectbox(
+    selected_period_type = st.selectbox(
         "Agrupar por",
         options=["day", "week", "month", "quarter", "semester", "year"],
         format_func={
@@ -471,12 +517,17 @@ with period_tab:
             "year": "Ano",
         }.get,
     )
-    selected_period = period_sales[period_sales["period_type"] == period_label].sort_values("period_start")
+    selected_period = period_sales[period_sales["period_type"] == selected_period_type].sort_values("period_start").copy()
+    if not selected_period.empty:
+        selected_period["period_label"] = selected_period.apply(format_period_label, axis=1)
+    else:
+        selected_period["period_label"] = pd.Series(dtype=str)
+
     fig = px.bar(
         selected_period,
-        x="period_start",
+        x="period_label",
         y="gross_revenue",
-        labels={"period_start": "Periodo", "gross_revenue": "Faturamento"},
+        labels={"period_label": "Periodo", "gross_revenue": "Faturamento"},
         color_discrete_sequence=[GREEN],
     )
     st.plotly_chart(chart_layout(fig), use_container_width=True)
