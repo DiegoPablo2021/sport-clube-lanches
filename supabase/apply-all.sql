@@ -1172,6 +1172,76 @@ set
 where slug = 'petisco-frango';
 
 -- ============================================================
+-- supabase/migrations/0010_juice_product_images.sql
+-- ============================================================
+-- Atualiza as imagens dos sucos individuais no cardapio publicado pelo Supabase.
+update public.products
+set
+  image_url = case slug
+    when 'suco-manga-goiaba' then '/menu-images/suco-manga.jpeg'
+    when 'suco-uva' then '/menu-images/suco-uva.jpeg'
+    when 'suco-caja' then '/menu-images/suco-caja.jpeg'
+    when 'suco-acerola' then '/menu-images/suco-acerola.jpeg'
+    else image_url
+  end,
+  updated_at = now()
+where slug in (
+  'suco-manga-goiaba',
+  'suco-uva',
+  'suco-caja',
+  'suco-acerola'
+);
+
+-- ============================================================
+-- supabase/migrations/0011_split_manga_goiaba_and_soda_images.sql
+-- ============================================================
+-- Atualiza refrigerantes com imagens individuais e separa manga/goiaba em dois sucos.
+with bebida_category as (
+  select id
+  from public.categories
+  where slug = 'bebidas'
+),
+product_seed(slug, name, description, price, image_url, active, highlight) as (
+  values
+  ('bebida-guarana-1l', 'Guaraná 1 litro', 'Refrigerante Guaraná 1L.', 8.50, '/menu-images/bebida-guarana-1l.jpeg', true, false),
+  ('bebida-pepsi-1l', 'Pepsi 1 litro', 'Refrigerante Pepsi 1L.', 8.50, '/menu-images/bebida-pepsi-1l.jpeg', true, false),
+  ('bebida-coca-350', 'Coca Cola sem açúcar 350ml', 'Refrigerante Coca Cola sem açúcar lata.', 5.50, '/menu-images/bebida-coca-cola-sem-acucar-350.jpeg', true, false),
+  ('bebida-pepsi-350', 'Pepsi 350ml', 'Refrigerante Pepsi lata.', 5.50, '/menu-images/bebida-pepsi-350.jpeg', true, false),
+  ('bebida-guarana-350', 'Guaraná 350ml', 'Refrigerante Guaraná lata.', 5.00, '/menu-images/bebida-guarana-350.jpeg', true, false),
+  ('bebida-fanta-uva-350', 'Fanta Uva 350ml', 'Refrigerante Fanta Uva lata.', 5.00, '/menu-images/bebida-fanta-uva-350.jpeg', true, false),
+  ('suco-manga', 'Suco de manga 300ml', 'Adicionar leite custa R$ 2,00.', 4.50, '/menu-images/suco-manga.jpeg', true, false),
+  ('suco-goiaba', 'Suco de goiaba 300ml', 'Adicionar leite custa R$ 2,00.', 4.50, '/menu-images/suco-goiaba.jpeg', true, false)
+)
+insert into public.products (slug, category_id, name, description, price, image_url, active, highlight)
+select
+  product_seed.slug,
+  bebida_category.id,
+  product_seed.name,
+  product_seed.description,
+  product_seed.price,
+  product_seed.image_url,
+  product_seed.active,
+  product_seed.highlight
+from product_seed
+cross join bebida_category
+on conflict (slug) do update set
+  category_id = excluded.category_id,
+  name = excluded.name,
+  description = excluded.description,
+  price = excluded.price,
+  image_url = excluded.image_url,
+  active = excluded.active,
+  highlight = excluded.highlight,
+  updated_at = now();
+
+-- O antigo item combinado deixa de aparecer no cardápio.
+update public.products
+set
+  active = false,
+  updated_at = now()
+where slug = 'suco-manga-goiaba';
+
+-- ============================================================
 -- supabase/seed.sql
 -- ============================================================
 -- Seed completo gerado a partir de src/app/data/menu.data.ts.
@@ -1242,13 +1312,14 @@ with product_seed(slug, category_slug, name, description, price, image_url, acti
   ('porcao-macaxeira', 'petiscos', 'Macaxeira 450g', 'Porção de macaxeira.', 12.00, '/menu-images/porcao-macaxeira.png', true, false),
   ('porcao-fritas', 'petiscos', 'Fritas 450g', 'Porção de batata frita.', 12.00, '/menu-images/porcao-fritas.png', true, false),
   ('porcao-fritas-cheddar', 'petiscos', 'Fritas com requeijão cheddar 450g', 'Porção de fritas com cheddar.', 15.00, '/menu-images/porcao-fritas-cheddar.png', true, false),
-  ('bebida-guarana-1l', 'bebidas', 'Guaraná 1 litro', 'Refrigerante Guaraná 1L.', 8.50, '/menu-images/img11.jpeg', true, false),
-  ('bebida-pepsi-1l', 'bebidas', 'Pepsi 1 litro', 'Refrigerante Pepsi 1L.', 8.50, '/menu-images/img11.jpeg', true, false),
-  ('bebida-coca-350', 'bebidas', 'Coca Cola 350ml', 'Refrigerante Coca Cola lata.', 5.50, '/menu-images/img11.jpeg', true, false),
-  ('bebida-pepsi-350', 'bebidas', 'Pepsi 350ml', 'Refrigerante Pepsi lata.', 5.50, '/menu-images/img11.jpeg', true, false),
-  ('bebida-guarana-350', 'bebidas', 'Guaraná 350ml', 'Refrigerante Guaraná lata.', 5.00, '/menu-images/img11.jpeg', true, false),
-  ('bebida-fanta-uva-350', 'bebidas', 'Fanta Uva 350ml', 'Refrigerante Fanta Uva lata.', 5.00, '/menu-images/img11.jpeg', true, false),
-  ('suco-manga-goiaba', 'bebidas', 'Suco de manga e goiaba 300ml', 'Adicionar leite custa R$ 2,00.', 4.50, '/menu-images/suco-manga-goiaba.jpeg', true, false),
+  ('bebida-guarana-1l', 'bebidas', 'Guaraná 1 litro', 'Refrigerante Guaraná 1L.', 8.50, '/menu-images/bebida-guarana-1l.jpeg', true, false),
+  ('bebida-pepsi-1l', 'bebidas', 'Pepsi 1 litro', 'Refrigerante Pepsi 1L.', 8.50, '/menu-images/bebida-pepsi-1l.jpeg', true, false),
+  ('bebida-coca-350', 'bebidas', 'Coca Cola sem açúcar 350ml', 'Refrigerante Coca Cola sem açúcar lata.', 5.50, '/menu-images/bebida-coca-cola-sem-acucar-350.jpeg', true, false),
+  ('bebida-pepsi-350', 'bebidas', 'Pepsi 350ml', 'Refrigerante Pepsi lata.', 5.50, '/menu-images/bebida-pepsi-350.jpeg', true, false),
+  ('bebida-guarana-350', 'bebidas', 'Guaraná 350ml', 'Refrigerante Guaraná lata.', 5.00, '/menu-images/bebida-guarana-350.jpeg', true, false),
+  ('bebida-fanta-uva-350', 'bebidas', 'Fanta Uva 350ml', 'Refrigerante Fanta Uva lata.', 5.00, '/menu-images/bebida-fanta-uva-350.jpeg', true, false),
+  ('suco-manga', 'bebidas', 'Suco de manga 300ml', 'Adicionar leite custa R$ 2,00.', 4.50, '/menu-images/suco-manga.jpeg', true, false),
+  ('suco-goiaba', 'bebidas', 'Suco de goiaba 300ml', 'Adicionar leite custa R$ 2,00.', 4.50, '/menu-images/suco-goiaba.jpeg', true, false),
   ('suco-uva', 'bebidas', 'Suco de uva 300ml', 'Adicionar leite custa R$ 2,00.', 5.50, '/menu-images/suco-uva.jpeg', true, false),
   ('suco-caja', 'bebidas', 'Suco de cajá 300ml', 'Adicionar leite custa R$ 2,00.', 5.50, '/menu-images/suco-caja.jpeg', true, false),
   ('suco-acerola', 'bebidas', 'Suco de acerola 300ml', 'Adicionar leite custa R$ 2,00.', 5.50, '/menu-images/suco-acerola.jpeg', true, false)
