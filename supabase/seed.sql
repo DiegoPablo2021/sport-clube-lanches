@@ -28,6 +28,7 @@ on conflict (slug) do update set
 with product_seed(slug, category_slug, name, description, price, image_url, active, highlight) as (
   values
   ('combo-completo', 'promocoes', 'Combo Completo', '3 hot dogão Andorra, 2 hambúrgueres Suécia, porção de batata com cheddar e refrigerante 1 litro.', 59.99, '/menu-images/combo-completo-semana.jpeg', true, true),
+  ('combo-completo-especial', 'promocoes', 'Combo Completo Especial', '3 hambúrgueres Suécia, 2 pastéis Brasil, porção de batata com cheddar e refrigerante 1 litro.', 52.99, '/menu-images/combo-completo-especial.jpeg', true, true),
   ('combo-suecia', 'promocoes', 'Combo Suécia', '3 sanduíches, batata e refrigerante 1 litro.', 39.90, '/menu-images/img01.jpeg', true, true),
   ('promocao-andorra', 'promocoes', 'Promoção 3 Andorra', '3 hot dogão Andorra.', 15.00, '/menu-images/img03.jpeg', true, true),
   ('promocao-espanha', 'promocoes', 'Espanha com fritas', '1 hambúrguer Espanha com meia porção de fritas.', 16.00, '/menu-images/img04.jpeg', true, true),

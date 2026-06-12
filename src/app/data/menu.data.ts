@@ -71,6 +71,18 @@ export const products: Product[] = [
     tags: ['Combo da semana'],
   },
   {
+    id: 'combo-completo-especial',
+    categoryId: 'promocoes',
+    name: 'Combo Completo Especial',
+    description:
+      '3 hambúrgueres Suécia, 2 pastéis Brasil, porção de batata com cheddar e refrigerante 1 litro.',
+    price: 52.99,
+    imageUrl: '/menu-images/combo-completo-especial.jpeg',
+    active: true,
+    highlight: true,
+    tags: ['Combo completo'],
+  },
+  {
     id: 'combo-suecia',
     categoryId: 'promocoes',
     name: 'Combo Suécia',
