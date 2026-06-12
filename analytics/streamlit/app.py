@@ -196,7 +196,7 @@ def empty_frame(columns: list[str]) -> pd.DataFrame:
     return pd.DataFrame(columns=columns)
 
 
-@st.cache_data(ttl=300)
+@st.cache_data(ttl=30)
 def load_frame(
     table_name: str,
     columns: tuple[str, ...],
@@ -313,6 +313,10 @@ if logo_url:
         """,
         unsafe_allow_html=True,
     )
+
+if st.sidebar.button("Atualizar dados", use_container_width=True):
+    st.cache_data.clear()
+    st.rerun()
 
 st.markdown('<div class="dashboard-title">Sport Clube Lanches</div>', unsafe_allow_html=True)
 st.markdown(

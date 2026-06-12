@@ -158,7 +158,41 @@ where not exists (
 
 
 -- ============================================================
--- Query: 12 - Impressora - Pedidos pendentes para impressao
+-- Query: 12 - Limpeza - Zerar pedidos de teste antes da operacao real
+-- O que faz: remove todos os pedidos, itens e eventos, reiniciando a numeracao.
+-- Como usar: rode SOMENTE quando tiver certeza de que ainda nao ha pedido real.
+-- Observacao: mantem o catalogo/cardapio intacto; apaga apenas movimento.
+-- ============================================================
+truncate table
+  public.order_events,
+  public.order_items,
+  public.orders
+restart identity cascade;
+
+delete from public.customers c
+where not exists (
+  select 1
+  from public.orders o
+  where o.customer_id = c.id
+);
+
+
+-- ============================================================
+-- Query: 13 - Validacao - Confirmar banco sem pedidos
+-- O que faz: confere se pedidos, itens e eventos foram removidos.
+-- Como usar: rode depois da limpeza para confirmar que o dashboard deve zerar.
+-- ============================================================
+select 'orders' as tabela, count(*) as total from public.orders
+union all
+select 'order_items' as tabela, count(*) as total from public.order_items
+union all
+select 'order_events' as tabela, count(*) as total from public.order_events
+union all
+select 'customers' as tabela, count(*) as total from public.customers;
+
+
+-- ============================================================
+-- Query: 14 - Impressora - Pedidos pendentes para impressao
 -- O que faz: mostra pedidos que o agente local da impressora deve imprimir.
 -- Como usar: util quando a impressora chegar para testar a fila.
 -- ============================================================
@@ -167,7 +201,7 @@ from public.get_pending_print_orders(10);
 
 
 -- ============================================================
--- Query: 13 - Impressora - Liberar ultimo pedido para reimpressao
+-- Query: 15 - Impressora - Liberar ultimo pedido para reimpressao
 -- O que faz: remove o evento order.printed do ultimo pedido.
 -- Como usar: rode quando quiser testar a mesma comanda de novo na impressora.
 -- ============================================================
@@ -182,7 +216,7 @@ where event_type = 'order.printed'
 
 
 -- ============================================================
--- Query: 14 - Dashboard - KPI snapshot geral
+-- Query: 16 - Dashboard - KPI snapshot geral
 -- O que faz: retorna os principais numeros acumulados do negocio.
 -- Como usar: base para cards de Power BI ou conferencia rapida.
 -- ============================================================
@@ -190,7 +224,7 @@ select * from public.vw_kpi_snapshot;
 
 
 -- ============================================================
--- Query: 15 - Dashboard - Resumo operacional do dia
+-- Query: 17 - Dashboard - Resumo operacional do dia
 -- O que faz: mostra pedidos, receita, ticket medio e pedidos abertos do dia.
 -- Como usar: ideal para acompanhamento diario da lanchonete.
 -- ============================================================
@@ -198,7 +232,7 @@ select * from public.vw_daily_operational_summary;
 
 
 -- ============================================================
--- Query: 16 - Dashboard - Vendas diarias
+-- Query: 18 - Dashboard - Vendas diarias
 -- O que faz: mostra pedidos, cancelados, faturamento e ticket medio por dia.
 -- Como usar: base para grafico de faturamento diario.
 -- ============================================================
@@ -209,7 +243,7 @@ limit 30;
 
 
 -- ============================================================
--- Query: 17 - Dashboard - Produtos mais vendidos
+-- Query: 19 - Dashboard - Produtos mais vendidos
 -- O que faz: ranqueia produtos por quantidade vendida e faturamento.
 -- Como usar: ajuda Leandro e Kardiele a saberem o que mais sai.
 -- ============================================================
@@ -219,7 +253,7 @@ limit 20;
 
 
 -- ============================================================
--- Query: 18 - Dashboard - Clientes que mais compram
+-- Query: 20 - Dashboard - Clientes que mais compram
 -- O que faz: mostra ranking de clientes por pedidos e faturamento.
 -- Como usar: bom para relacionamento e para descobrir clientes fieis.
 -- ============================================================
@@ -229,7 +263,7 @@ limit 30;
 
 
 -- ============================================================
--- Query: 19 - Dashboard - Clientes candidatos a promocao
+-- Query: 21 - Dashboard - Clientes candidatos a promocao
 -- O que faz: sugere clientes para brinde/cupom pelo historico recente.
 -- Como usar: base para campanhas manuais no WhatsApp.
 -- ============================================================
@@ -239,7 +273,7 @@ limit 20;
 
 
 -- ============================================================
--- Query: 20 - Dashboard - Ciclo de vida dos clientes
+-- Query: 22 - Dashboard - Ciclo de vida dos clientes
 -- O que faz: classifica clientes como ativo, aquecido, risco de sumir ou inativo.
 -- Como usar: ajuda em acoes de relacionamento e recuperacao.
 -- ============================================================
@@ -249,7 +283,7 @@ limit 20;
 
 
 -- ============================================================
--- Query: 21 - Dashboard - Horario de pico por dia da semana
+-- Query: 23 - Dashboard - Horario de pico por dia da semana
 -- O que faz: retorna pedidos por dia da semana e hora.
 -- Como usar: base para mapa de calor no Streamlit ou Power BI.
 -- ============================================================
@@ -258,7 +292,7 @@ from public.vw_hour_weekday_heatmap;
 
 
 -- ============================================================
--- Query: 22 - Dashboard - Bairros que mais compram
+-- Query: 24 - Dashboard - Bairros que mais compram
 -- O que faz: mostra pedidos, faturamento e ticket medio por bairro/localidade.
 -- Como usar: ajuda a entender onde vale divulgar e como revisar taxa de entrega.
 -- ============================================================
@@ -268,7 +302,7 @@ limit 30;
 
 
 -- ============================================================
--- Query: 23 - Dashboard - Formas de pagamento
+-- Query: 25 - Dashboard - Formas de pagamento
 -- O que faz: resume pedidos e faturamento por forma de pagamento.
 -- Como usar: acompanha preferencia dos clientes e uso de Pix/cartao/dinheiro.
 -- ============================================================
@@ -277,7 +311,7 @@ from public.vw_payment_methods;
 
 
 -- ============================================================
--- Query: 24 - Financeiro - Taxas de entrega e cartao
+-- Query: 26 - Financeiro - Taxas de entrega e cartao
 -- O que faz: mostra subtotal, taxa de entrega, taxa de cartao e total por pedido.
 -- Como usar: confere se o pedido gravou os valores corretamente para o BI.
 -- ============================================================
@@ -297,7 +331,7 @@ limit 30;
 
 
 -- ============================================================
--- Query: 25 - Financeiro - Receita por forma de pagamento hoje
+-- Query: 27 - Financeiro - Receita por forma de pagamento hoje
 -- O que faz: resume pedidos e receita do dia por pagamento.
 -- Como usar: ajuda no fechamento diario de caixa.
 -- ============================================================
@@ -316,7 +350,7 @@ order by total_amount desc;
 
 
 -- ============================================================
--- Query: 26 - Catalogo - Produtos sem imagem ou inativos
+-- Query: 28 - Catalogo - Produtos sem imagem ou inativos
 -- O que faz: lista produtos sem imagem cadastrada ou que estao inativos.
 -- Como usar: manutencao rapida do cardapio.
 -- ============================================================
