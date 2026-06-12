@@ -475,7 +475,7 @@ export const products: Product[] = [
     name: 'Suco de manga e goiaba 300ml',
     description: 'Adicionar leite custa R$ 2,00.',
     price: 4.5,
-    imageUrl: '/menu-images/img11.jpeg',
+    imageUrl: '/menu-images/suco-manga-goiaba.jpeg',
     active: true,
   },
   {
@@ -484,7 +484,7 @@ export const products: Product[] = [
     name: 'Suco de uva 300ml',
     description: 'Adicionar leite custa R$ 2,00.',
     price: 5.5,
-    imageUrl: '/menu-images/img11.jpeg',
+    imageUrl: '/menu-images/suco-uva.jpeg',
     active: true,
   },
   {
@@ -493,7 +493,7 @@ export const products: Product[] = [
     name: 'Suco de cajá 300ml',
     description: 'Adicionar leite custa R$ 2,00.',
     price: 5.5,
-    imageUrl: '/menu-images/img11.jpeg',
+    imageUrl: '/menu-images/suco-caja.jpeg',
     active: true,
   },
   {
@@ -502,7 +502,7 @@ export const products: Product[] = [
     name: 'Suco de acerola 300ml',
     description: 'Adicionar leite custa R$ 2,00.',
     price: 5.5,
-    imageUrl: '/menu-images/img11.jpeg',
+    imageUrl: '/menu-images/suco-acerola.jpeg',
     active: true,
   },
 ];
