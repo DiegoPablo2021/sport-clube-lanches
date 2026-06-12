@@ -164,9 +164,16 @@ export class MenuPageComponent {
   }
 
   getDeliveryFeeAmount(): number {
-    return this.checkout.orderType === 'Entrega'
+    return this.hasResolvedDeliveryFee()
       ? this.deliveryFeeService.getDeliveryFee(this.checkout.neighborhood).amount
       : 0;
+  }
+
+  hasResolvedDeliveryFee(): boolean {
+    return (
+      this.checkout.orderType === 'Entrega' &&
+      this.checkout.neighborhood.trim().length > 0
+    );
   }
 
   getPaymentFeeAmount(): number {
@@ -196,6 +203,7 @@ export class MenuPageComponent {
     return (
       this.cart.totalItems() > 0 &&
       this.checkout.paymentMethods.length > 0 &&
+      this.hasRequiredDeliveryInfo() &&
       !this.savingOrder()
     );
   }
@@ -206,6 +214,18 @@ export class MenuPageComponent {
     }
 
     return `Taxa de cartão: ${this.formatCurrency(this.getPaymentFeeAmount())}.`;
+  }
+
+  getDeliveryFeeSummary(): string {
+    if (this.checkout.orderType === 'Retirada') {
+      return 'Retirada';
+    }
+
+    if (!this.hasResolvedDeliveryFee()) {
+      return 'informe o bairro';
+    }
+
+    return this.formatCurrency(this.getDeliveryFeeAmount());
   }
 
   async copyPixPayload(): Promise<void> {
@@ -243,6 +263,17 @@ export class MenuPageComponent {
     const normalized = value.replace(/\./g, '').replace(',', '.').replace(/[^\d.]/g, '');
     const parsed = Number(normalized);
     return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  private hasRequiredDeliveryInfo(): boolean {
+    if (this.checkout.orderType === 'Retirada') {
+      return true;
+    }
+
+    return (
+      this.checkout.address.trim().length > 0 &&
+      this.checkout.neighborhood.trim().length > 0
+    );
   }
 
   trackById(_: number, item: { id: string }): string {

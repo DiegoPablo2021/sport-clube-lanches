@@ -246,7 +246,7 @@
 
       <div class="checkout-total" aria-label="Total do pedido">
         <span>Subtotal: {{ cart.totalAmount() | brlCurrency }}</span>
-        <span>Entrega: {{ getDeliveryFeeAmount() | brlCurrency }}</span>
+        <span>Entrega: {{ getDeliveryFeeSummary() }}</span>
         <span>Cartão: {{ getPaymentFeeAmount() | brlCurrency }}</span>
         <strong>Total: {{ getOrderTotalAmount() | brlCurrency }}</strong>
       </div>
