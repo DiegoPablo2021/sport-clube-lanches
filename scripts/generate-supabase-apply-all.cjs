@@ -12,6 +12,7 @@ const inputs = [
   'supabase/migrations/0006_api_view_grants.sql',
   'supabase/migrations/0007_order_fee_amounts.sql',
   'supabase/migrations/0008_menu_beverages_update.sql',
+  'supabase/migrations/0009_menu_product_images.sql',
   'supabase/seed.sql',
 ];
 

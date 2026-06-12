@@ -205,7 +205,7 @@ export const products: Product[] = [
     name: 'Andorra',
     description: 'Frango, carne moída, salsicha, vinagrete, batata palha e queijo ralado.',
     price: 7,
-    imageUrl: '/menu-images/img07.jpeg',
+    imageUrl: '/menu-images/hot-dogao.jpeg',
     active: true,
   },
   {
@@ -214,7 +214,7 @@ export const products: Product[] = [
     name: 'Reino Unido',
     description: 'Salsicha, carne de sol na nata, vinagrete e queijo ralado.',
     price: 9,
-    imageUrl: '/menu-images/img07.jpeg',
+    imageUrl: '/menu-images/hot-dogao.jpeg',
     active: true,
   },
   {
@@ -223,7 +223,7 @@ export const products: Product[] = [
     name: 'Estados Unidos',
     description: 'Frango com catupiry, salsicha, vinagrete, batata palha e queijo ralado.',
     price: 9,
-    imageUrl: '/menu-images/img07.jpeg',
+    imageUrl: '/menu-images/hot-dogao.jpeg',
     active: true,
   },
   {
@@ -232,7 +232,7 @@ export const products: Product[] = [
     name: 'Bélgica',
     description: 'Carne de sol na nata.',
     price: 12,
-    imageUrl: '/menu-images/img07.jpeg',
+    imageUrl: '/menu-images/pastel.jpeg',
     active: true,
   },
   {
@@ -241,7 +241,7 @@ export const products: Product[] = [
     name: 'Rússia',
     description: 'Carne moída com mussarela.',
     price: 8,
-    imageUrl: '/menu-images/img07.jpeg',
+    imageUrl: '/menu-images/pastel.jpeg',
     active: true,
   },
   {
@@ -250,7 +250,7 @@ export const products: Product[] = [
     name: 'França',
     description: 'Frango desfiado com catupiry.',
     price: 8,
-    imageUrl: '/menu-images/img07.jpeg',
+    imageUrl: '/menu-images/pastel.jpeg',
     active: true,
   },
   {
@@ -259,7 +259,7 @@ export const products: Product[] = [
     name: 'Suíça',
     description: 'Camarão com catupiry.',
     price: 12,
-    imageUrl: '/menu-images/img07.jpeg',
+    imageUrl: '/menu-images/pastel.jpeg',
     active: true,
   },
   {
@@ -268,7 +268,7 @@ export const products: Product[] = [
     name: 'Brasil',
     description: 'Queijo, presunto e orégano.',
     price: 5,
-    imageUrl: '/menu-images/img07.jpeg',
+    imageUrl: '/menu-images/pastel.jpeg',
     active: true,
   },
   {
@@ -277,7 +277,7 @@ export const products: Product[] = [
     name: 'Áustria',
     description: 'Calabresa, cebola, mussarela e orégano.',
     price: 8,
-    imageUrl: '/menu-images/img07.jpeg',
+    imageUrl: '/menu-images/pastel.jpeg',
     active: true,
   },
   {
@@ -286,7 +286,7 @@ export const products: Product[] = [
     name: 'México',
     description: 'Frango desfiado, mussarela e orégano.',
     price: 8,
-    imageUrl: '/menu-images/img07.jpeg',
+    imageUrl: '/menu-images/pastel.jpeg',
     active: true,
   },
   {
@@ -376,7 +376,7 @@ export const products: Product[] = [
     name: 'Frango a passarinho com fritas',
     description: 'Petisco de frango com fritas.',
     price: 25,
-    imageUrl: '/menu-images/img10.jpeg',
+    imageUrl: '/menu-images/frango-a-passarinho-com-fritas.jpeg',
     active: true,
   },
   {

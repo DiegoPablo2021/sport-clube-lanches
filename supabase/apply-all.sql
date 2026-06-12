@@ -1136,6 +1136,42 @@ set
 where slug = 'suco-uva-caja-acerola';
 
 -- ============================================================
+-- supabase/migrations/0009_menu_product_images.sql
+-- ============================================================
+-- Atualiza imagens especificas do cardapio depois da entrada de novas fotos.
+update public.products
+set
+  image_url = '/menu-images/hot-dogao.jpeg',
+  updated_at = now()
+where slug in (
+  'hotdog-andorra',
+  'hotdog-reino-unido',
+  'hotdog-estados-unidos'
+);
+
+-- Usa a mesma foto base de pastel em todos os sabores.
+update public.products
+set
+  image_url = '/menu-images/pastel.jpeg',
+  updated_at = now()
+where slug in (
+  'pastel-belgica',
+  'pastel-russia',
+  'pastel-franca',
+  'pastel-suica',
+  'pastel-brasil',
+  'pastel-austria',
+  'pastel-mexico'
+);
+
+-- Aplica a foto nova do petisco de frango.
+update public.products
+set
+  image_url = '/menu-images/frango-a-passarinho-com-fritas.jpeg',
+  updated_at = now()
+where slug = 'petisco-frango';
+
+-- ============================================================
 -- supabase/seed.sql
 -- ============================================================
 -- Seed completo gerado a partir de src/app/data/menu.data.ts.
@@ -1182,16 +1218,16 @@ with product_seed(slug, category_slug, name, description, price, image_url, acti
   ('baguete-portugal', 'baguetes', 'Portugal', 'Pão baguete, salsicha, ovo, mussarela, alface, tomate e molho.', 12.00, '/menu-images/img06.jpeg', true, false),
   ('baguete-croacia', 'baguetes', 'Croácia', 'Pão baguete, calabresa, mussarela, alface, tomate, cebola grelhada e barbecue.', 12.00, '/menu-images/img06.jpeg', true, false),
   ('baguete-prime', 'baguetes', 'Prime', 'Pão baguete, carne de sol na nata, alface e tomate.', 14.00, '/menu-images/baguete-prime.png', true, false),
-  ('hotdog-andorra', 'hot-dogao', 'Andorra', 'Frango, carne moída, salsicha, vinagrete, batata palha e queijo ralado.', 7.00, '/menu-images/img07.jpeg', true, false),
-  ('hotdog-reino-unido', 'hot-dogao', 'Reino Unido', 'Salsicha, carne de sol na nata, vinagrete e queijo ralado.', 9.00, '/menu-images/img07.jpeg', true, false),
-  ('hotdog-estados-unidos', 'hot-dogao', 'Estados Unidos', 'Frango com catupiry, salsicha, vinagrete, batata palha e queijo ralado.', 9.00, '/menu-images/img07.jpeg', true, false),
-  ('pastel-belgica', 'pasteis', 'Bélgica', 'Carne de sol na nata.', 12.00, '/menu-images/img07.jpeg', true, false),
-  ('pastel-russia', 'pasteis', 'Rússia', 'Carne moída com mussarela.', 8.00, '/menu-images/img07.jpeg', true, false),
-  ('pastel-franca', 'pasteis', 'França', 'Frango desfiado com catupiry.', 8.00, '/menu-images/img07.jpeg', true, false),
-  ('pastel-suica', 'pasteis', 'Suíça', 'Camarão com catupiry.', 12.00, '/menu-images/img07.jpeg', true, false),
-  ('pastel-brasil', 'pasteis', 'Brasil', 'Queijo, presunto e orégano.', 5.00, '/menu-images/img07.jpeg', true, false),
-  ('pastel-austria', 'pasteis', 'Áustria', 'Calabresa, cebola, mussarela e orégano.', 8.00, '/menu-images/img07.jpeg', true, false),
-  ('pastel-mexico', 'pasteis', 'México', 'Frango desfiado, mussarela e orégano.', 8.00, '/menu-images/img07.jpeg', true, false),
+  ('hotdog-andorra', 'hot-dogao', 'Andorra', 'Frango, carne moída, salsicha, vinagrete, batata palha e queijo ralado.', 7.00, '/menu-images/hot-dogao.jpeg', true, false),
+  ('hotdog-reino-unido', 'hot-dogao', 'Reino Unido', 'Salsicha, carne de sol na nata, vinagrete e queijo ralado.', 9.00, '/menu-images/hot-dogao.jpeg', true, false),
+  ('hotdog-estados-unidos', 'hot-dogao', 'Estados Unidos', 'Frango com catupiry, salsicha, vinagrete, batata palha e queijo ralado.', 9.00, '/menu-images/hot-dogao.jpeg', true, false),
+  ('pastel-belgica', 'pasteis', 'Bélgica', 'Carne de sol na nata.', 12.00, '/menu-images/pastel.jpeg', true, false),
+  ('pastel-russia', 'pasteis', 'Rússia', 'Carne moída com mussarela.', 8.00, '/menu-images/pastel.jpeg', true, false),
+  ('pastel-franca', 'pasteis', 'França', 'Frango desfiado com catupiry.', 8.00, '/menu-images/pastel.jpeg', true, false),
+  ('pastel-suica', 'pasteis', 'Suíça', 'Camarão com catupiry.', 12.00, '/menu-images/pastel.jpeg', true, false),
+  ('pastel-brasil', 'pasteis', 'Brasil', 'Queijo, presunto e orégano.', 5.00, '/menu-images/pastel.jpeg', true, false),
+  ('pastel-austria', 'pasteis', 'Áustria', 'Calabresa, cebola, mussarela e orégano.', 8.00, '/menu-images/pastel.jpeg', true, false),
+  ('pastel-mexico', 'pasteis', 'México', 'Frango desfiado, mussarela e orégano.', 8.00, '/menu-images/pastel.jpeg', true, false),
   ('cuscuz-opcao-1', 'cuscuz', 'Opção 1', 'Carne de sol na nata com fatias de mussarela.', 15.00, '/menu-images/img08.jpeg', true, false),
   ('cuscuz-opcao-2', 'cuscuz', 'Opção 2', 'Frango desfiado com requeijão.', 12.00, '/menu-images/img08.jpeg', true, false),
   ('cuscuz-opcao-3', 'cuscuz', 'Opção 3', 'Calabresa com fatias de mussarela.', 10.00, '/menu-images/img08.jpeg', true, false),
@@ -1201,7 +1237,7 @@ with product_seed(slug, category_slug, name, description, price, image_url, acti
   ('tapioca-frango', 'tapiocas', 'Frango desfiado com mussarela', 'Tapioca recheada com frango desfiado e mussarela.', 7.00, '/menu-images/img09.jpeg', true, false),
   ('tapioca-queijo-presunto', 'tapiocas', 'Queijo mussarela e presunto', 'Tapioca recheada com queijo mussarela e presunto.', 6.00, '/menu-images/img09.jpeg', true, false),
   ('petisco-camarao', 'petiscos', 'Camarão ao alho e óleo com fritas', 'Petisco com camarão e fritas.', 30.00, '/menu-images/petisco-camarao.png', true, false),
-  ('petisco-frango', 'petiscos', 'Frango a passarinho com fritas', 'Petisco de frango com fritas.', 25.00, '/menu-images/img10.jpeg', true, false),
+  ('petisco-frango', 'petiscos', 'Frango a passarinho com fritas', 'Petisco de frango com fritas.', 25.00, '/menu-images/frango-a-passarinho-com-fritas.jpeg', true, false),
   ('petisco-carne-sol', 'petiscos', 'Carne de sol sertanejo com queijo coalho', 'Petisco de carne de sol com queijo coalho.', 30.00, '/menu-images/petisco-carne-sol.png', true, false),
   ('porcao-macaxeira', 'petiscos', 'Macaxeira 450g', 'Porção de macaxeira.', 12.00, '/menu-images/porcao-macaxeira.png', true, false),
   ('porcao-fritas', 'petiscos', 'Fritas 450g', 'Porção de batata frita.', 12.00, '/menu-images/porcao-fritas.png', true, false),
