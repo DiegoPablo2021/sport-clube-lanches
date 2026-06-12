@@ -1242,6 +1242,23 @@ set
 where slug = 'suco-manga-goiaba';
 
 -- ============================================================
+-- supabase/migrations/0012_hamburger_default_image.sql
+-- ============================================================
+-- Usa uma imagem padrao para todos os hamburgueres enquanto as fotos individuais nao forem produzidas.
+update public.products
+set
+  image_url = '/menu-images/hamburguer-padrao.png',
+  updated_at = now()
+where slug in (
+  'hamburguer-suecia',
+  'hamburguer-espanha',
+  'hamburguer-alemanha',
+  'hamburguer-polonia',
+  'hamburguer-finlandia',
+  'hamburguer-inglaterra'
+);
+
+-- ============================================================
 -- supabase/seed.sql
 -- ============================================================
 -- Seed completo gerado a partir de src/app/data/menu.data.ts.
@@ -1277,12 +1294,12 @@ with product_seed(slug, category_slug, name, description, price, image_url, acti
   ('combo-suecia', 'promocoes', 'Combo Suécia', '3 sanduíches, batata e refrigerante 1 litro.', 39.90, '/menu-images/img01.jpeg', true, true),
   ('promocao-andorra', 'promocoes', 'Promoção 3 Andorra', '3 hot dogão Andorra.', 15.00, '/menu-images/img03.jpeg', true, true),
   ('promocao-espanha', 'promocoes', 'Espanha com fritas', '1 hambúrguer Espanha com meia porção de fritas.', 16.00, '/menu-images/img04.jpeg', true, true),
-  ('hamburguer-suecia', 'hamburgueres', 'Suécia', 'Pão, hambúrguer, ovo, presunto, requeijão cheddar, alface e tomate.', 8.00, '/menu-images/hamburguer-suecia.png', true, false),
-  ('hamburguer-espanha', 'hamburgueres', 'Espanha', 'Pão, hambúrguer, mussarela, salsicha, ovo, alface, tomate e molho.', 10.00, '/menu-images/img06.jpeg', true, false),
-  ('hamburguer-alemanha', 'hamburgueres', 'Alemanha', 'Pão, hambúrguer, frango, ovo, alface, tomate e mussarela.', 12.00, '/menu-images/img06.jpeg', true, false),
-  ('hamburguer-polonia', 'hamburgueres', 'Polônia', 'Pão, hambúrguer, camarão com catupiry, mussarela, alface e tomate.', 16.00, '/menu-images/img06.jpeg', true, false),
-  ('hamburguer-finlandia', 'hamburgueres', 'Finlândia', 'Pão, hambúrguer, bacon, ovo, mussarela, presunto, alface, tomate e molho.', 14.00, '/menu-images/img06.jpeg', true, false),
-  ('hamburguer-inglaterra', 'hamburgueres', 'Inglaterra', 'Pão de hambúrguer, carne de sol desfiada, cebola grelhada, queijo coalho e mussarela.', 14.00, '/menu-images/img06.jpeg', true, false),
+  ('hamburguer-suecia', 'hamburgueres', 'Suécia', 'Pão, hambúrguer, ovo, presunto, requeijão cheddar, alface e tomate.', 8.00, '/menu-images/hamburguer-padrao.png', true, false),
+  ('hamburguer-espanha', 'hamburgueres', 'Espanha', 'Pão, hambúrguer, mussarela, salsicha, ovo, alface, tomate e molho.', 10.00, '/menu-images/hamburguer-padrao.png', true, false),
+  ('hamburguer-alemanha', 'hamburgueres', 'Alemanha', 'Pão, hambúrguer, frango, ovo, alface, tomate e mussarela.', 12.00, '/menu-images/hamburguer-padrao.png', true, false),
+  ('hamburguer-polonia', 'hamburgueres', 'Polônia', 'Pão, hambúrguer, camarão com catupiry, mussarela, alface e tomate.', 16.00, '/menu-images/hamburguer-padrao.png', true, false),
+  ('hamburguer-finlandia', 'hamburgueres', 'Finlândia', 'Pão, hambúrguer, bacon, ovo, mussarela, presunto, alface, tomate e molho.', 14.00, '/menu-images/hamburguer-padrao.png', true, false),
+  ('hamburguer-inglaterra', 'hamburgueres', 'Inglaterra', 'Pão de hambúrguer, carne de sol desfiada, cebola grelhada, queijo coalho e mussarela.', 14.00, '/menu-images/hamburguer-padrao.png', true, false),
   ('baguete-italia', 'baguetes', 'Itália', 'Pão baguete, frango desfiado, cebola grelhada, mussarela, alface, tomate e molho.', 12.00, '/menu-images/baguete-italia.png', true, false),
   ('baguete-monaco', 'baguetes', 'Mônaco', 'Pão baguete, frango com catupiry, alface e tomate.', 13.00, '/menu-images/img06.jpeg', true, false),
   ('baguete-portugal', 'baguetes', 'Portugal', 'Pão baguete, salsicha, ovo, mussarela, alface, tomate e molho.', 12.00, '/menu-images/img06.jpeg', true, false),

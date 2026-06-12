@@ -106,7 +106,7 @@ export const products: Product[] = [
     name: 'Suécia',
     description: 'Pão, hambúrguer, ovo, presunto, requeijão cheddar, alface e tomate.',
     price: 8,
-    imageUrl: '/menu-images/hamburguer-suecia.png',
+    imageUrl: '/menu-images/hamburguer-padrao.png',
     active: true,
   },
   {
@@ -115,7 +115,7 @@ export const products: Product[] = [
     name: 'Espanha',
     description: 'Pão, hambúrguer, mussarela, salsicha, ovo, alface, tomate e molho.',
     price: 10,
-    imageUrl: '/menu-images/img06.jpeg',
+    imageUrl: '/menu-images/hamburguer-padrao.png',
     active: true,
   },
   {
@@ -124,7 +124,7 @@ export const products: Product[] = [
     name: 'Alemanha',
     description: 'Pão, hambúrguer, frango, ovo, alface, tomate e mussarela.',
     price: 12,
-    imageUrl: '/menu-images/img06.jpeg',
+    imageUrl: '/menu-images/hamburguer-padrao.png',
     active: true,
   },
   {
@@ -133,7 +133,7 @@ export const products: Product[] = [
     name: 'Polônia',
     description: 'Pão, hambúrguer, camarão com catupiry, mussarela, alface e tomate.',
     price: 16,
-    imageUrl: '/menu-images/img06.jpeg',
+    imageUrl: '/menu-images/hamburguer-padrao.png',
     active: true,
   },
   {
@@ -142,7 +142,7 @@ export const products: Product[] = [
     name: 'Finlândia',
     description: 'Pão, hambúrguer, bacon, ovo, mussarela, presunto, alface, tomate e molho.',
     price: 14,
-    imageUrl: '/menu-images/img06.jpeg',
+    imageUrl: '/menu-images/hamburguer-padrao.png',
     active: true,
   },
   {
@@ -151,7 +151,7 @@ export const products: Product[] = [
     name: 'Inglaterra',
     description: 'Pão de hambúrguer, carne de sol desfiada, cebola grelhada, queijo coalho e mussarela.',
     price: 14,
-    imageUrl: '/menu-images/img06.jpeg',
+    imageUrl: '/menu-images/hamburguer-padrao.png',
     active: true,
   },
   {

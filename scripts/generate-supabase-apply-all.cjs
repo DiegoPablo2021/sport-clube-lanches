@@ -15,6 +15,7 @@ const inputs = [
   'supabase/migrations/0009_menu_product_images.sql',
   'supabase/migrations/0010_juice_product_images.sql',
   'supabase/migrations/0011_split_manga_goiaba_and_soda_images.sql',
+  'supabase/migrations/0012_hamburger_default_image.sql',
   'supabase/seed.sql',
 ];
 
