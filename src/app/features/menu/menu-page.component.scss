@@ -337,10 +337,35 @@ button {
   padding: 8px 10px;
 }
 
-.cart-item span {
+.cart-item-info {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.cart-item-info span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.cart-item-info small {
+  color: var(--yellow);
+  font-weight: 800;
+}
+
+.milk-option {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  font-size: 0.76rem;
+  gap: 6px;
+  line-height: 1.2;
+}
+
+.milk-option input {
+  accent-color: var(--green);
+  flex: 0 0 auto;
 }
 
 .cart-item button {

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../../environments/environment';
 import { CartItem, CheckoutInfo } from '../models/menu.models';
+import { CartService, MILK_ADDITIONAL_AMOUNT } from './cart.service';
 import { DeliveryFeeService } from './delivery-fee.service';
 import { PaymentService } from './payment.service';
 
@@ -19,6 +20,7 @@ export class OrderPersistenceService {
       : null;
 
   constructor(
+    private readonly cartService: CartService,
     private readonly deliveryFeeService: DeliveryFeeService,
     private readonly paymentService: PaymentService,
   ) {}
@@ -68,6 +70,9 @@ export class OrderPersistenceService {
       items: items.map((item) => ({
         product_slug: item.product.id,
         quantity: item.quantity,
+        options_label: item.options?.withMilk ? 'com leite' : null,
+        unit_additional_amount: item.options?.withMilk ? MILK_ADDITIONAL_AMOUNT : 0,
+        expected_unit_price: this.cartService.getItemUnitPrice(item),
       })),
     };
 

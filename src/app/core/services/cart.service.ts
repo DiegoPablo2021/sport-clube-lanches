@@ -1,6 +1,8 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { CartItem, Product } from '../models/menu.models';
 
+export const MILK_ADDITIONAL_AMOUNT = 2;
+
 @Injectable({ providedIn: 'root' })
 export class CartService {
   private readonly itemsState = signal<CartItem[]>([]);
@@ -11,7 +13,7 @@ export class CartService {
   );
   readonly totalAmount = computed(() =>
     this.itemsState().reduce(
-      (total, item) => total + item.product.price * item.quantity,
+      (total, item) => total + this.getItemSubtotal(item),
       0,
     ),
   );
@@ -42,6 +44,24 @@ export class CartService {
         )
         .filter((item) => item.quantity > 0),
     );
+  }
+
+  toggleMilk(productId: string, withMilk: boolean): void {
+    this.itemsState.update((items) =>
+      items.map((item) =>
+        item.product.id === productId
+          ? { ...item, options: { ...item.options, withMilk } }
+          : item,
+      ),
+    );
+  }
+
+  getItemUnitPrice(item: CartItem): number {
+    return item.product.price + (item.options?.withMilk ? MILK_ADDITIONAL_AMOUNT : 0);
+  }
+
+  getItemSubtotal(item: CartItem): number {
+    return this.getItemUnitPrice(item) * item.quantity;
   }
 
   remove(productId: string): void {

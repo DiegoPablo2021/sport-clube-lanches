@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
 import { businessConfig } from '../config/business.config';
 import { CartItem, CheckoutInfo } from '../models/menu.models';
+import { CartService, MILK_ADDITIONAL_AMOUNT } from './cart.service';
 import { DeliveryFeeService } from './delivery-fee.service';
 import { PaymentService } from './payment.service';
 
 @Injectable({ providedIn: 'root' })
 export class WhatsappService {
   constructor(
+    private readonly cartService: CartService,
     private readonly deliveryFeeService: DeliveryFeeService,
     private readonly paymentService: PaymentService,
   ) {}
@@ -14,13 +16,17 @@ export class WhatsappService {
   buildOrderMessage(items: CartItem[], checkout: CheckoutInfo): string {
     const products = items
       .map((item) => {
-        const subtotal = this.formatCurrency(item.product.price * item.quantity);
-        return `- *${item.quantity}x ${item.product.name}* - ${subtotal}`;
+        const optionLabel = item.options?.withMilk ? ' com leite' : '';
+        const milkLabel = item.options?.withMilk
+          ? ` (+${this.formatCurrency(MILK_ADDITIONAL_AMOUNT)} por unidade)`
+          : '';
+        const subtotal = this.formatCurrency(this.cartService.getItemSubtotal(item));
+        return `- *${item.quantity}x ${item.product.name}${optionLabel}*${milkLabel} - ${subtotal}`;
       })
       .join('\n');
 
     const subtotal = items.reduce(
-      (amount, item) => amount + item.product.price * item.quantity,
+      (amount, item) => amount + this.cartService.getItemSubtotal(item),
       0,
     );
     const deliveryFee =

@@ -20,6 +20,11 @@ export interface Product {
 export interface CartItem {
   product: Product;
   quantity: number;
+  options?: CartItemOptions;
+}
+
+export interface CartItemOptions {
+  withMilk?: boolean;
 }
 
 export type PaymentMethod = 'Pix' | 'Credito na entrega' | 'Debito na entrega' | 'Dinheiro';

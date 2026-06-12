@@ -112,7 +112,20 @@
       <div class="cart-items">
         @for (item of cart.items(); track item.product.id) {
           <div class="cart-item">
-            <span>{{ item.quantity }}x {{ item.product.name }}</span>
+            <div class="cart-item-info">
+              <span>{{ item.quantity }}x {{ item.product.name }}</span>
+              @if (isJuiceProduct(item.product)) {
+                <label class="milk-option">
+                  <input
+                    type="checkbox"
+                    [checked]="item.options?.withMilk"
+                    (change)="toggleMilkAdditional(item.product.id, $any($event.target).checked)"
+                  />
+                  Com leite (+{{ milkAdditionalAmount | brlCurrency }} por unidade)
+                </label>
+              }
+              <small>{{ getCartItemSubtotal(item) | brlCurrency }}</small>
+            </div>
             <div>
               <button type="button" (click)="decreaseProduct(item.product.id)">-</button>
               <button type="button" (click)="addProduct(item.product)">+</button>

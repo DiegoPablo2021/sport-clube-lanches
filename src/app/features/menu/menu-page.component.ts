@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CheckoutInfo, PaymentMethod, Product } from '../../core/models/menu.models';
+import { CartItem, CheckoutInfo, PaymentMethod, Product } from '../../core/models/menu.models';
 import { businessConfig } from '../../core/config/business.config';
-import { CartService } from '../../core/services/cart.service';
+import { CartService, MILK_ADDITIONAL_AMOUNT } from '../../core/services/cart.service';
 import { DeliveryFeeService } from '../../core/services/delivery-fee.service';
 import { OrderPersistenceService } from '../../core/services/order-persistence.service';
 import { PaymentService } from '../../core/services/payment.service';
@@ -30,6 +30,7 @@ export class MenuPageComponent {
   readonly categories = categories;
   readonly categoryTabs = categories.filter((category) => category.id !== 'promocoes');
   readonly paymentOptions = this.paymentService.options;
+  readonly milkAdditionalAmount = MILK_ADDITIONAL_AMOUNT;
   readonly selectedCategoryId = signal(this.categoryTabs[0].id);
   readonly savingOrder = signal(false);
   readonly cartExpanded = signal(false);
@@ -80,6 +81,19 @@ export class MenuPageComponent {
   decreaseProduct(productId: string): void {
     this.cart.decrease(productId);
     void this.refreshPixPayment();
+  }
+
+  toggleMilkAdditional(productId: string, checked: boolean): void {
+    this.cart.toggleMilk(productId, checked);
+    void this.refreshPixPayment();
+  }
+
+  isJuiceProduct(product: Product): boolean {
+    return product.categoryId === 'bebidas' && product.id.startsWith('suco-');
+  }
+
+  getCartItemSubtotal(item: CartItem): number {
+    return this.cart.getItemSubtotal(item);
   }
 
   openCheckout(): void {
