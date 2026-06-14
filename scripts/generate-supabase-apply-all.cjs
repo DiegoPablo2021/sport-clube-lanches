@@ -18,6 +18,7 @@ const inputs = [
   'supabase/migrations/0012_hamburger_default_image.sql',
   'supabase/migrations/0013_order_item_additionals.sql',
   'supabase/migrations/0014_combo_completo_especial.sql',
+  'supabase/migrations/0015_analytics_timezone_neighborhood.sql',
   'supabase/seed.sql',
 ];
 

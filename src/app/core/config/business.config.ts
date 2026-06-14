@@ -4,7 +4,8 @@ export const businessConfig = {
   whatsappNumber: '5584921564101',
   address: 'Rua Espanha, 395 - Sport Clube III',
   instagram: '@esportclubelanches',
-  openingHoursNotice: 'Funcionamento: confirme disponibilidade pelo WhatsApp.',
+  openingHoursNotice:
+    'Sábado e domingo a partir das 18h\nSegunda, terça e sexta a partir das 19h\nQuartas e quintas fechado',
   freeDeliveryNeighborhoods: ['Sport Clube 3', 'Sport Clube 4'],
   pix: {
     key: '00862c99-532b-452f-96c7-795f02829754',
