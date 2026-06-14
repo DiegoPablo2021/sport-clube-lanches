@@ -1,5 +1,6 @@
 import base64
 import os
+import re
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
@@ -152,6 +153,44 @@ def hour_label(value: object) -> str:
     return f"{int(value):02d}h"
 
 
+def normalize_neighborhood(value: object) -> str:
+    raw_value = str(value or "").strip()
+
+    if not raw_value:
+        return "Retirada"
+
+    clean_value = " ".join(
+        "".join(char.lower() if char.isalnum() else " " for char in raw_value).split()
+    )
+    clean_value = re.sub(r"(?<=[a-z])(?=\d)", " ", clean_value)
+    clean_value = re.sub(r"(?<=\d)(?=[a-z])", " ", clean_value)
+    sport_clube_prefix = clean_value.startswith("sport club ") or clean_value.startswith("sport clube ")
+
+    if sport_clube_prefix and clean_value.split()[-1] in {"3", "iii", "4", "iv"}:
+        return "Sport Clube 3/4"
+
+    if sport_clube_prefix and clean_value.split()[-1] in {"1", "i", "2", "ii", "5", "v", "6", "vi"}:
+        number_map = {"i": "1", "ii": "2", "v": "5", "vi": "6"}
+        neighborhood_number = number_map.get(clean_value.split()[-1], clean_value.split()[-1])
+        return f"Sport Clube {neighborhood_number}"
+
+    if sport_clube_prefix and clean_value.endswith("natureza"):
+        return "Sport Clube Natureza"
+
+    return raw_value.title()
+
+
+def add_local_datetime(source: pd.DataFrame) -> pd.DataFrame:
+    if source.empty or "created_at" not in source.columns:
+        return source
+
+    data = source.copy()
+    data["local_created_at"] = pd.to_datetime(data["created_at"], utc=True, errors="coerce").dt.tz_convert(
+        "America/Sao_Paulo"
+    )
+    return data
+
+
 def format_period_label(row: pd.Series) -> str:
     period_start = pd.to_datetime(row["period_start"])
     period_type = row["period_type"]
@@ -255,6 +294,10 @@ category_sales = load_frame(
     "vw_category_sales",
     ("category_id", "category_name", "quantity_sold", "gross_revenue", "orders_count"),
 )
+orders_base = load_frame(
+    "vw_orders_base",
+    ("id", "created_at", "neighborhood", "order_status", "total_amount"),
+)
 neighborhood_sales = load_frame(
     "vw_neighborhood_sales",
     ("neighborhood", "total_orders", "gross_revenue", "average_ticket"),
@@ -301,6 +344,32 @@ operational = load_frame(
     "vw_daily_operational_summary",
     ("reference_date", "orders_today", "revenue_today", "average_ticket_today", "open_orders_today", "unique_customers_today"),
 )
+
+valid_orders_base = add_local_datetime(orders_base)
+if not valid_orders_base.empty:
+    valid_orders_base = valid_orders_base[valid_orders_base["order_status"] != "cancelled"].copy()
+
+if not valid_orders_base.empty:
+    valid_orders_base["normalized_neighborhood"] = valid_orders_base["neighborhood"].apply(normalize_neighborhood)
+    valid_orders_base["order_hour"] = valid_orders_base["local_created_at"].dt.hour
+    valid_orders_base["total_amount"] = pd.to_numeric(valid_orders_base["total_amount"], errors="coerce").fillna(0)
+
+    neighborhood_sales = (
+        valid_orders_base.groupby("normalized_neighborhood", as_index=False)
+        .agg(
+            total_orders=("id", "count"),
+            gross_revenue=("total_amount", "sum"),
+            average_ticket=("total_amount", "mean"),
+        )
+        .rename(columns={"normalized_neighborhood": "neighborhood"})
+        .sort_values(["total_orders", "gross_revenue"], ascending=False)
+    )
+
+    hourly_sales = (
+        valid_orders_base.groupby("order_hour", as_index=False)
+        .agg(total_orders=("id", "count"), gross_revenue=("total_amount", "sum"))
+        .sort_values("order_hour")
+    )
 
 logo_url = logo_data_url()
 if logo_url:
